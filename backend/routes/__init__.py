@@ -37,4 +37,4 @@ def register_all_blueprints(app):
     # app.register_blueprint(order_bp,  url_prefix='/api/orders')
     # app.register_blueprint(review_bp, url_prefix='/api/reviews')
 
-    app.logger.info("✅ All blueprints registered successfully.")
+    app.logger.info("[OK] All blueprints registered successfully.")

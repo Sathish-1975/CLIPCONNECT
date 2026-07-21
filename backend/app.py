@@ -95,8 +95,8 @@ def create_app(config_class=None):
             format='%(asctime)s [%(levelname)s]: %(message)s'
         )
 
-    app.logger.info(f"🚀 Starting {app.config.get('APP_NAME')} v{app.config.get('APP_VERSION')}")
-    app.logger.info(f"📦 Environment: {os.environ.get('FLASK_ENV', 'development')}")
+    app.logger.info(f"[START] Starting {app.config.get('APP_NAME')} v{app.config.get('APP_VERSION')}")
+    app.logger.info(f"[ENV]   Environment: {os.environ.get('FLASK_ENV', 'development')}")
 
     # --------------------------------------------------------
     # Step 4: Initialize Extensions (bind to app instance)
@@ -106,7 +106,7 @@ def create_app(config_class=None):
     # db was created in database/__init__.py without an app
     # This line binds it to our specific app instance
     db.init_app(app)
-    app.logger.info("✅ SQLAlchemy initialized")
+    app.logger.info("[OK]    SQLAlchemy initialized")
 
     # Initialize CORS (Cross-Origin Resource Sharing)
     # Allows frontend (different port) to call our backend API
@@ -123,7 +123,7 @@ def create_app(config_class=None):
         },
         supports_credentials=True
     )
-    app.logger.info(f"✅ CORS configured for origins: {cors_origins}")
+    app.logger.info(f"[OK]    CORS configured for origins: {cors_origins}")
 
     # --------------------------------------------------------
     # Step 5: Register Route Blueprints
@@ -131,7 +131,7 @@ def create_app(config_class=None):
     with app.app_context():
         from routes import register_all_blueprints
         register_all_blueprints(app)
-        app.logger.info("✅ All route blueprints registered")
+        app.logger.info("[OK]    All route blueprints registered")
 
     # --------------------------------------------------------
     # Step 6: Create Database Tables
@@ -144,11 +144,11 @@ def create_app(config_class=None):
             # Create all tables that don't exist yet
             # In production, use Flask-Migrate (flask db upgrade) instead
             db.create_all()
-            app.logger.info("✅ Database tables created (or already exist)")
+            app.logger.info("[OK]    Database tables created (or already exist)")
 
         except Exception as e:
-            app.logger.error(f"❌ Database setup failed: {str(e)}")
-            app.logger.error("👉 Make sure PostgreSQL is running and DATABASE_URL is correct in .env")
+            app.logger.error(f"[ERROR] Database setup failed: {str(e)}")
+            app.logger.error("[HINT]  Make sure PostgreSQL is running and DATABASE_URL is correct in .env")
             # Don't crash the app — it might still work if tables already exist
 
     # --------------------------------------------------------
@@ -297,11 +297,11 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_DEBUG', 'True').lower() == 'true'
 
     print("\n" + "="*60)
-    print(f"  🎬 ClipConnect API Server")
-    print(f"  🌐 Running at: http://localhost:{port}")
-    print(f"  📡 Health check: http://localhost:{port}/api/health")
-    print(f"  🔐 Auth API: http://localhost:{port}/api/auth")
-    print(f"  🐛 Debug mode: {debug}")
+    print(f"  ClipConnect API Server")
+    print(f"  Running at: http://localhost:{port}")
+    print(f"  Health check: http://localhost:{port}/api/health")
+    print(f"  Auth API: http://localhost:{port}/api/auth")
+    print(f"  Debug mode: {debug}")
     print("="*60 + "\n")
 
     app.run(
