@@ -33,7 +33,7 @@
  * Change this when deploying to production.
  * In production: 'https://api.clipconnect.com'
  */
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5001/api';
 
 /**
  * Default request timeout in milliseconds.
