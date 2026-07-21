@@ -2,39 +2,33 @@
 ============================================================
 ClipConnect - Routes Package Initialization
 ============================================================
-Purpose:
-    Collects all route blueprints and registers them in app.py.
-
-What is a Flask Blueprint?
-    A Blueprint is a way to organize routes into logical groups.
-    Each feature area (auth, users, gigs, orders) gets its own Blueprint.
-    app.py registers all blueprints with their URL prefixes.
-
-Usage in app.py:
-    from routes import register_all_blueprints
-    register_all_blueprints(app)
+Registers all Flask Blueprints with their URL prefixes.
+Add each new feature blueprint here as the project grows.
 ============================================================
 """
 
 from routes.auth_routes import auth_bp
+from routes.user_routes import user_bp
 
 
 def register_all_blueprints(app):
     """
     Register all route blueprints with the Flask application.
-    
-    Args:
-        app: Flask application instance
-    
+
     URL Prefixes:
-        /api/auth   --> auth_bp   (registration, login, profile)
+        /api/auth   → auth_bp   (register, login, me)
+        /api/users  → user_bp   (editor profiles, uploads, browse)
+
+    Note: /uploads/* static serving is handled inside user_bp
+          and registered at the app level in app.py.
     """
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(user_bp, url_prefix='/api/users')
 
-    # Future blueprints (Week 2+):
-    # app.register_blueprint(user_bp,   url_prefix='/api/users')
-    # app.register_blueprint(gig_bp,    url_prefix='/api/gigs')
-    # app.register_blueprint(order_bp,  url_prefix='/api/orders')
-    # app.register_blueprint(review_bp, url_prefix='/api/reviews')
+    # Week 3+ (uncomment when ready):
+    # from routes.gig_routes   import gig_bp
+    # from routes.order_routes import order_bp
+    # app.register_blueprint(gig_bp,   url_prefix='/api/gigs')
+    # app.register_blueprint(order_bp, url_prefix='/api/orders')
 
     app.logger.info("[OK] All blueprints registered successfully.")

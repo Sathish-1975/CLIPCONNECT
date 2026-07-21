@@ -139,7 +139,7 @@ def create_app(config_class=None):
     with app.app_context():
         try:
             # Import all models so SQLAlchemy knows about them
-            from models import User   # noqa: F401
+            from models import User, EditorProfile   # noqa: F401
 
             # Create all tables that don't exist yet
             # In production, use Flask-Migrate (flask db upgrade) instead
@@ -210,6 +210,17 @@ def register_root_routes(app):
             "database": db_status,
             "environment": os.environ.get('FLASK_ENV', 'development')
         })
+
+    @app.route('/uploads/<path:filepath>', methods=['GET'])
+    def serve_uploads(filepath):
+        """
+        GET /uploads/<folder>/<filename>
+        Serve uploaded files (avatars, banners, resumes, portfolio images).
+        Example: GET /uploads/avatars/20240101_abc123.jpg
+        """
+        from flask import send_from_directory
+        upload_base = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
+        return send_from_directory(upload_base, filepath)
 
 
 # ============================================================

@@ -2,23 +2,21 @@
 ============================================================
 ClipConnect - Models Package Initialization
 ============================================================
-Purpose:
-    Imports all SQLAlchemy models so they are registered
-    with the database before db.create_all() is called.
-
-Why important?
-    SQLAlchemy needs to "see" all model classes before it can
-    create the corresponding database tables. By importing them
-    all here, we guarantee they are registered.
-
-Usage:
-    from models import User
-    from models import db  # if needed
+Registers ALL SQLAlchemy models so db.create_all() creates
+every table. Import order matters for FK resolution.
 ============================================================
 """
 
-# Import all models to register them with SQLAlchemy
+# Week 1
 from models.user_model import User
 
-# Export models for easy access
-__all__ = ['User']
+# Week 2
+from models.editor_profile_model import EditorProfile, EditorCategory, AvailabilityStatus
+
+# Export for easy external access
+__all__ = [
+    'User',
+    'EditorProfile',
+    'EditorCategory',
+    'AvailabilityStatus',
+]
