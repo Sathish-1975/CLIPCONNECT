@@ -139,7 +139,7 @@ def create_app(config_class=None):
     with app.app_context():
         try:
             # Import all models so SQLAlchemy knows about them
-            from models import User, EditorProfile   # noqa: F401
+            from models import User, EditorProfile, ClientProfile   # noqa: F401
 
             # Create all tables that don't exist yet
             # In production, use Flask-Migrate (flask db upgrade) instead

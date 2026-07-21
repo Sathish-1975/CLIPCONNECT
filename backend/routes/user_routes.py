@@ -140,3 +140,85 @@ def portfolio_image_remove(current_user, index):
 def portfolio_video_remove(current_user, index):
     """DELETE — Remove portfolio video by list index."""
     return user_ctrl.delete_portfolio_video(current_user, index)
+
+
+# ============================================================
+# Client Dashboard Routes
+# ============================================================
+
+import controllers.client_controller as client_ctrl
+
+
+@user_bp.route('/me/dashboard', methods=['GET'])
+@token_required
+def client_dashboard(current_user):
+    """GET /api/users/me/dashboard — Full client dashboard data."""
+    return client_ctrl.get_client_dashboard(current_user)
+
+
+@user_bp.route('/me/account', methods=['PUT'])
+@token_required
+def account_settings(current_user):
+    """PUT /api/users/me/account — Update name, email, password, profile fields."""
+    return client_ctrl.update_account_settings(current_user)
+
+
+@user_bp.route('/me/client-avatar', methods=['POST'])
+@token_required
+def client_avatar_upload(current_user):
+    """POST /api/users/me/client-avatar — Upload client profile photo."""
+    return client_ctrl.upload_client_avatar(current_user)
+
+
+# ── Favorites ──────────────────────────────────────────────────
+
+@user_bp.route('/me/favorites', methods=['GET'])
+@token_required
+def favorites_list(current_user):
+    """GET — List all favorite editors with full snippets."""
+    return client_ctrl.get_favorites(current_user)
+
+
+@user_bp.route('/me/favorites/<int:editor_id>', methods=['POST'])
+@token_required
+def favorite_add(current_user, editor_id):
+    """POST — Add an editor to favorites."""
+    return client_ctrl.add_favorite(current_user, editor_id)
+
+
+@user_bp.route('/me/favorites/<int:editor_id>', methods=['DELETE'])
+@token_required
+def favorite_remove(current_user, editor_id):
+    """DELETE — Remove an editor from favorites."""
+    return client_ctrl.remove_favorite(current_user, editor_id)
+
+
+# ── Notifications ───────────────────────────────────────────────
+
+@user_bp.route('/me/notifications', methods=['GET'])
+@token_required
+def notifications_list(current_user):
+    """GET — All notifications (newest first) + unread count."""
+    return client_ctrl.get_notifications(current_user)
+
+
+@user_bp.route('/me/notifications/<notif_id>', methods=['PATCH'])
+@token_required
+def notification_read(current_user, notif_id):
+    """PATCH — Mark a single notification as read."""
+    return client_ctrl.mark_notification_read(current_user, notif_id)
+
+
+@user_bp.route('/me/notifications/read-all', methods=['POST'])
+@token_required
+def notifications_read_all(current_user):
+    """POST — Mark all notifications as read."""
+    return client_ctrl.mark_all_notifications_read(current_user)
+
+
+@user_bp.route('/me/notifications/prefs', methods=['PUT'])
+@token_required
+def notification_prefs(current_user):
+    """PUT — Update notification preferences."""
+    return client_ctrl.update_notification_prefs(current_user)
+

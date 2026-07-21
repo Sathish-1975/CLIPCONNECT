@@ -12,11 +12,10 @@ from models.user_model import User
 
 # Week 2
 from models.editor_profile_model import EditorProfile, EditorCategory, AvailabilityStatus
+from models.client_profile_model import ClientProfile
 
-# Export for easy external access
 __all__ = [
     'User',
-    'EditorProfile',
-    'EditorCategory',
-    'AvailabilityStatus',
+    'EditorProfile', 'EditorCategory', 'AvailabilityStatus',
+    'ClientProfile',
 ]
