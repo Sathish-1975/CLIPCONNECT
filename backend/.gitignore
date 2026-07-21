@@ -1,0 +1,68 @@
+# ============================================================
+# ClipConnect - .gitignore
+# ============================================================
+
+# --- Environment Variables (NEVER commit these!) ---
+.env
+.env.local
+.env.production
+
+# --- Python Virtual Environment ---
+venv/
+env/
+.venv/
+ENV/
+
+# --- Python Cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.pyd
+
+# --- Distribution / Packaging ---
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# --- Database ---
+*.db
+*.sqlite3
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# --- OS Generated ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Upload directories ---
+uploads/
+static/uploads/

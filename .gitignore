@@ -1,0 +1,63 @@
+# ============================================================
+# ClipConnect - Root .gitignore
+# ============================================================
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.production
+*.env
+
+# --- Python Virtual Environment ---
+venv/
+env/
+.venv/
+backend/venv/
+backend/env/
+
+# --- Python Cache ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*$py.class
+
+# --- Distribution / Packaging ---
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# --- Database ---
+*.db
+*.sqlite3
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Node (future frontend builds) ---
+node_modules/
+npm-debug.log*
+
+# --- Uploads ---
+backend/uploads/
+frontend/images/uploads/
+
+# --- Flask-Migrate (keep structure but not data) ---
+# backend/migrations/versions/*.py  # Uncomment if needed
+
+# --- OS ---
+.DS_Store
+ehthumbs.db
+Desktop.ini

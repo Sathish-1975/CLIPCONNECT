@@ -1,0 +1,38 @@
+# ============================================================
+# ClipConnect - Python Dependencies
+# ============================================================
+# Install with: pip install -r requirements.txt
+# ============================================================
+
+# --- Core Flask Framework ---
+Flask==3.0.3
+
+# --- Flask Extensions ---
+Flask-SQLAlchemy==3.1.1        # ORM: Maps Python classes to DB tables
+Flask-CORS==4.0.1              # Cross-Origin Resource Sharing for frontend
+Flask-Migrate==4.0.7           # Database migration management (Alembic)
+
+# --- Authentication & Security ---
+PyJWT==2.8.0                   # JSON Web Token generation and verification
+bcrypt==4.1.3                  # Password hashing (industry standard)
+Flask-Bcrypt==1.0.1            # Flask integration for bcrypt
+
+# --- Database ---
+psycopg2-binary==2.9.9         # PostgreSQL adapter for Python
+SQLAlchemy==2.0.31             # Core ORM (used by Flask-SQLAlchemy)
+
+# --- Environment Variables ---
+python-dotenv==1.0.1           # Load .env file into os.environ
+
+# --- Validation ---
+marshmallow==3.21.3            # Object serialization & deserialization / validation
+email-validator==2.2.0         # Email address validation
+
+# --- Utilities ---
+Werkzeug==3.0.3                # WSGI utility (included with Flask, pinned for compat)
+
+# --- Development Tools ---
+# Uncomment these during development if needed
+# flask-shell-ipython==0.5.1   # Better Flask shell
+# pytest==8.2.2                # Testing framework
+# pytest-flask==1.3.0          # Flask testing utilities
