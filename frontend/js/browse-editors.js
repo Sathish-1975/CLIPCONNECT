@@ -19,14 +19,17 @@ const state = {
   loading:     false,
   editors:     [],
   filters: {
-    search:      '',
-    category:    '',
-    sort:        'rating',
-    available:   false,
-    minRating:   0,
-    minRate:     0,
-    maxRate:     0,
-    city:        '',
+    search:        '',
+    category:      '',
+    sort:          'rating',
+    available:     false,
+    minRating:     0,
+    minRate:       0,
+    maxRate:       0,
+    city:          '',
+    minExperience: 0,
+    software:      '',
+    language:      '',
   },
   favoriteIds: [],
 };
@@ -57,13 +60,18 @@ function initials(name) { return (name||'?').split(' ').map(w=>w[0]).join('').to
 function esc(s) { const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 const CATEGORY_ICONS = {
-  youtube: '▶️', reels: '🎬', wedding: '💍', corporate: '💼',
-  motion_graphics: '✨', podcast: '🎙️', ecommerce: '🛒', documentary: '🎥', other: '🎞️'
+  wedding: '💍', youtube: '▶️', gaming: '🎮', reels: '🎬',
+  podcast: '🎙️', documentary: '🎥', short_film: '🎞️',
+  motion_graphics: '✨', vfx: '🔮', colorist: '�',
+  thumbnail_designer: '�️', audio_editor: '🎵',
+  subtitle_editor: '📝', ai_video_editor: '🤖', other: '🎞️'
 };
 const CATEGORY_LABELS = {
-  youtube: 'YouTube', reels: 'Reels & Shorts', wedding: 'Wedding',
-  corporate: 'Corporate', motion_graphics: 'Motion Graphics',
-  podcast: 'Podcast', ecommerce: 'E-Commerce', documentary: 'Documentary', other: 'Other'
+  wedding: 'Wedding', youtube: 'YouTube', gaming: 'Gaming', reels: 'Reels',
+  podcast: 'Podcast', documentary: 'Documentary', short_film: 'Short Film',
+  motion_graphics: 'Motion Graphics', vfx: 'VFX', colorist: 'Colorist',
+  thumbnail_designer: 'Thumbnail Designer', audio_editor: 'Audio Editor',
+  subtitle_editor: 'Subtitle Editor', ai_video_editor: 'AI Video Editor', other: 'Other'
 };
 const AVAIL_LABELS = { available: '🟢 Available', busy: '🟡 Busy', on_vacation: '⚪ On Vacation' };
 
@@ -87,6 +95,9 @@ async function fetchEditors() {
   if (f.maxRate)   params.set('max_rate',   f.maxRate);
   if (f.minRate)   params.set('min_rate',   f.minRate);
   if (f.city)      params.set('city',       f.city);
+  if (f.minExperience) params.set('min_experience', f.minExperience);
+  if (f.software)  params.set('software',  f.software);
+  if (f.language)  params.set('language',  f.language);
 
   try {
     const res  = await fetch(`${API}/users/editors?${params}`);
@@ -274,7 +285,7 @@ function showSkeletons() {
 
 function renderEmpty() {
   const f = state.filters;
-  const hasFilters = f.search || f.category || f.available || f.minRating || f.maxRate;
+  const hasFilters = f.search || f.category || f.available || f.minRating || f.maxRate || f.minExperience || f.software || f.language || f.city;
   document.getElementById('editors-grid').innerHTML = `
     <div class="empty-state">
       <div class="empty-state__icon">🎬</div>
@@ -296,6 +307,9 @@ function updateResultsBar() {
     if (f.available) parts.push('Available only');
     if (f.minRating) parts.push(`${f.minRating}+ stars`);
     if (f.city)      parts.push(f.city);
+    if (f.minExperience) parts.push(`${f.minExperience}+ years exp`);
+    if (f.software)  parts.push(f.software);
+    if (f.language)  parts.push(f.language);
     sub.textContent = parts.length ? `Filtered: ${parts.join(' · ')}` : 'All editors on ClipConnect';
   }
   const navCount = document.getElementById('nav-count');
@@ -316,6 +330,9 @@ function renderActiveChips() {
   if (f.minRating) chips.push({ label: `${f.minRating}★+`,     key: 'minRating' });
   if (f.maxRate)   chips.push({ label: `≤₹${Number(f.maxRate).toLocaleString('en-IN')}/hr`, key: 'maxRate' });
   if (f.city)      chips.push({ label: `📍${f.city}`,          key: 'city' });
+  if (f.minExperience) chips.push({ label: `${f.minExperience}+ years`, key: 'minExperience' });
+  if (f.software)  chips.push({ label: f.software,             key: 'software' });
+  if (f.language)  chips.push({ label: f.language,             key: 'language' });
 
   wrap.innerHTML = chips.map(c => `
     <button class="filter-chip" onclick="removeChip('${c.key}')">
@@ -327,6 +344,7 @@ window.removeChip = function(key) {
   if (key === 'available') state.filters.available = false;
   else if (key === 'minRating') state.filters.minRating = 0;
   else if (key === 'maxRate') state.filters.maxRate = 0;
+  else if (key === 'minExperience') state.filters.minExperience = 0;
   else state.filters[key] = '';
 
   syncUIToState();
@@ -334,7 +352,7 @@ window.removeChip = function(key) {
 };
 
 window.clearAllFilters = function() {
-  state.filters = { search: '', category: '', sort: 'rating', available: false, minRating: 0, minRate: 0, maxRate: 0, city: '' };
+  state.filters = { search: '', category: '', sort: 'rating', available: false, minRating: 0, minRate: 0, maxRate: 0, city: '', minExperience: 0, software: '', language: '' };
   syncUIToState();
   resetAndFetch();
 };
@@ -443,6 +461,28 @@ function initSidebarFilters() {
     state.filters.city = cityInput.value.trim();
     resetAndFetch();
   }, 500));
+
+  // Experience radio buttons
+  document.querySelectorAll('input[name="experience"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      state.filters.minExperience = parseInt(radio.value);
+      resetAndFetch();
+    });
+  });
+
+  // Software input
+  const softwareInput = document.getElementById('filter-software');
+  softwareInput?.addEventListener('input', debounce(() => {
+    state.filters.software = softwareInput.value.trim();
+    resetAndFetch();
+  }, 500));
+
+  // Language input
+  const languageInput = document.getElementById('filter-language');
+  languageInput?.addEventListener('input', debounce(() => {
+    state.filters.language = languageInput.value.trim();
+    resetAndFetch();
+  }, 500));
 }
 
 const debouncedFetch = debounce(resetAndFetch, 400);
@@ -487,6 +527,15 @@ function syncUIToState() {
     rateSlider.value = f.maxRate || rateSlider.max;
     rateLabel.textContent = f.maxRate ? `₹${Number(f.maxRate).toLocaleString('en-IN')}` : 'Any';
   }
+  const softwareInput = document.getElementById('filter-software');
+  if (softwareInput) softwareInput.value = f.software;
+  const languageInput = document.getElementById('filter-language');
+  if (languageInput) languageInput.value = f.language;
+  
+  // Experience radio buttons
+  const expRadio = document.querySelector(`input[name="experience"][value="${f.minExperience}"]`);
+  if (expRadio) expRadio.checked = true;
+  
   syncCategoryPills();
   syncCategoryCheckboxes();
   document.querySelectorAll('.star-opt').forEach(o => o.classList.toggle('active', parseFloat(o.dataset.rating) === f.minRating));

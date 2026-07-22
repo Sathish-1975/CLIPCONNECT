@@ -27,7 +27,7 @@ Static:
 """
 
 from flask import Blueprint, send_from_directory
-from middleware.auth_middleware import token_required
+from middleware.auth_middleware import token_required, editor_required
 import controllers.user_controller as user_ctrl
 from utils.upload_helper import UPLOAD_BASE
 
@@ -61,52 +61,52 @@ def editor_public(user_id):
 
 
 # ============================================================
-# Profile Management
+# Profile Management (Editor Only)
 # ============================================================
 
 @user_bp.route('/me/profile', methods=['POST'])
-@token_required
+@editor_required
 def create_profile(current_user):
-    """POST — Create / initialise editor profile."""
+    """POST — Create / initialise editor profile (editors only)."""
     return user_ctrl.setup_editor_profile(current_user)
 
 
 @user_bp.route('/me/profile', methods=['GET'])
-@token_required
+@editor_required
 def my_profile(current_user):
-    """GET — Fetch own profile (private view, all fields)."""
+    """GET — Fetch own profile (private view, all fields, editors only)."""
     return user_ctrl.get_my_profile(current_user)
 
 
 @user_bp.route('/me/profile', methods=['PUT'])
-@token_required
+@editor_required
 def update_profile(current_user):
-    """PUT — Partial update profile text/enum/array fields."""
+    """PUT — Partial update profile text/enum/array fields (editors only)."""
     return user_ctrl.update_my_profile(current_user)
 
 
 # ============================================================
-# File Uploads
+# File Uploads (Editor Only)
 # ============================================================
 
 @user_bp.route('/me/avatar', methods=['POST'])
-@token_required
+@editor_required
 def avatar_upload(current_user):
-    """POST — Upload / replace profile photo. Field: 'avatar'."""
+    """POST — Upload / replace profile photo (editors only). Field: 'avatar'."""
     return user_ctrl.upload_avatar(current_user)
 
 
 @user_bp.route('/me/banner', methods=['POST'])
-@token_required
+@editor_required
 def banner_upload(current_user):
-    """POST — Upload / replace cover banner. Field: 'banner'."""
+    """POST — Upload / replace cover banner (editors only). Field: 'banner'."""
     return user_ctrl.upload_banner(current_user)
 
 
 @user_bp.route('/me/resume', methods=['POST'])
-@token_required
+@editor_required
 def resume_upload(current_user):
-    """POST — Upload / replace resume file. Field: 'resume'."""
+    """POST — Upload / replace resume file (editors only). Field: 'resume'."""
     return user_ctrl.upload_resume(current_user)
 
 

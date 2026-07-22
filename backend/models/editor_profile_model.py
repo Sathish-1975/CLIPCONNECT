@@ -30,15 +30,21 @@ from database import db
 # ============================================================
 
 class EditorCategory(enum.Enum):
-    YOUTUBE         = 'youtube'
-    REELS           = 'reels'
-    WEDDING         = 'wedding'
-    CORPORATE       = 'corporate'
-    MOTION_GRAPHICS = 'motion_graphics'
-    PODCAST         = 'podcast'
-    ECOMMERCE       = 'ecommerce'
-    DOCUMENTARY     = 'documentary'
-    OTHER           = 'other'
+    WEDDING           = 'wedding'
+    YOUTUBE           = 'youtube'
+    GAMING            = 'gaming'
+    REELS             = 'reels'
+    PODCAST           = 'podcast'
+    DOCUMENTARY       = 'documentary'
+    SHORT_FILM        = 'short_film'
+    MOTION_GRAPHICS   = 'motion_graphics'
+    VFX               = 'vfx'
+    COLORIST          = 'colorist'
+    THUMBNAIL_DESIGNER = 'thumbnail_designer'
+    AUDIO_EDITOR      = 'audio_editor'
+    SUBTITLE_EDITOR   = 'subtitle_editor'
+    AI_VIDEO_EDITOR   = 'ai_video_editor'
+    OTHER             = 'other'
 
 
 class AvailabilityStatus(enum.Enum):

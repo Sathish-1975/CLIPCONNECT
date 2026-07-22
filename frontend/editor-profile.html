@@ -110,7 +110,8 @@
 
       <div class="navbar-actions">
         <a href="edit-profile.html" class="btn-outline" id="edit-profile-btn" style="display:none">Edit My Profile</a>
-        <button class="btn-primary" id="hire-btn">Hire This Editor</button>
+        <button class="btn-secondary" id="chat-btn">💬 Chat</button>
+        <button class="btn-primary" id="hire-btn">✨ Hire This Editor</button>
       </div>
     </div>
   </nav>
@@ -157,6 +158,9 @@
 
         <!-- Header actions -->
         <div class="profile-header__actions">
+          <button class="btn btn-secondary btn-lg" id="chat-btn-top" onclick="document.getElementById('chat-btn').click()">
+            💬 Chat
+          </button>
           <button class="btn btn-primary btn-lg" id="hire-btn-top" onclick="document.getElementById('hire-btn').click()">
             ✨ Hire This Editor
           </button>
@@ -275,6 +279,24 @@
             <h3>Portfolio Videos</h3>
           </div>
           <div class="video-list" id="portfolio-video-list"></div>
+        </div>
+
+        <!-- Client Reviews -->
+        <div class="p-card" id="reviews-section">
+          <div class="section-header">
+            <span class="section-icon">⭐</span>
+            <h3>Client Reviews</h3>
+          </div>
+          <div id="reviews-list"></div>
+        </div>
+
+        <!-- Similar Editors -->
+        <div class="p-card" id="similar-editors-section">
+          <div class="section-header">
+            <span class="section-icon">👥</span>
+            <h3>Similar Editors</h3>
+          </div>
+          <div class="similar-editors-grid" id="similar-editors-grid"></div>
         </div>
 
       </main><!-- /main -->

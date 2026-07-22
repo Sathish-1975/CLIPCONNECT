@@ -522,6 +522,154 @@ img { max-width: 100%; display: block; }
   border-color: #7C3AED;
 }
 
+/* Similar Editors Grid */
+.similar-editors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.similar-editor-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.similar-editor-card:hover {
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(124,58,237,0.25);
+  transform: translateY(-2px);
+}
+
+.similar-editor-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED, #06B6D4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: white;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.similar-editor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.similar-editor-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  margin-bottom: 4px;
+}
+
+.similar-editor-category {
+  font-size: 0.75rem;
+  color: #64748B;
+  margin-bottom: 8px;
+}
+
+.similar-editor-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #FBBF24;
+}
+
+.similar-editor-price {
+  font-size: 0.85rem;
+  color: #94A3B8;
+  margin-top: 8px;
+}
+
+/* Client Reviews */
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED, #06B6D4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+  overflow: hidden;
+}
+
+.review-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.review-author {
+  flex: 1;
+}
+
+.review-author-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #E2E8F0;
+}
+
+.review-date {
+  font-size: 0.75rem;
+  color: #64748B;
+}
+
+.review-rating {
+  color: #FBBF24;
+  font-size: 0.85rem;
+}
+
+.review-text {
+  font-size: 0.85rem;
+  color: #94A3B8;
+  line-height: 1.6;
+}
+
+.no-reviews {
+  text-align: center;
+  padding: 32px;
+  color: #64748B;
+  font-size: 0.9rem;
+}
+
 /* ============================================================
    SHARED BUTTON STYLES
    ============================================================ */
@@ -963,4 +1111,9 @@ select.form-control option { background: #1E1B4B; color: #E2E8F0; }
   .form-row { grid-template-columns: 1fr; }
   .profile-tabs { gap: 2px; }
   .profile-tab-btn { padding: 7px 12px; font-size: 0.78rem; }
+  
+  /* Responsive for new sections */
+  .similar-editors-grid { grid-template-columns: 1fr; }
+  .similar-editor-card { display: flex; align-items: center; gap: 12px; }
+  .similar-editor-avatar { margin-bottom: 0; width: 40px; height: 40px; }
 }

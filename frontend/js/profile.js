@@ -43,9 +43,11 @@ function formatCurrency(val) {
 
 function categoryLabel(cat) {
   const map = {
-    youtube: 'YouTube', reels: 'Reels & Shorts', wedding: 'Wedding',
-    corporate: 'Corporate', motion_graphics: 'Motion Graphics',
-    podcast: 'Podcast', ecommerce: 'E-Commerce', documentary: 'Documentary', other: 'Other'
+    wedding: 'Wedding', youtube: 'YouTube', gaming: 'Gaming', reels: 'Reels',
+    podcast: 'Podcast', documentary: 'Documentary', short_film: 'Short Film',
+    motion_graphics: 'Motion Graphics', vfx: 'VFX', colorist: 'Colorist',
+    thumbnail_designer: 'Thumbnail Designer', audio_editor: 'Audio Editor',
+    subtitle_editor: 'Subtitle Editor', ai_video_editor: 'AI Video Editor', other: 'Other'
   };
   return map[cat] || cat;
 }
@@ -259,6 +261,80 @@ function renderResume(p) {
   }
 }
 
+function renderReviews(p) {
+  const el = document.getElementById('reviews-list');
+  if (!el) return;
+  
+  // For now, show a placeholder since reviews API is not implemented yet
+  if (p.total_reviews > 0) {
+    el.innerHTML = `<div class="no-reviews">
+      <p>⭐ ${p.avg_rating.toFixed(1)} rating based on ${p.total_reviews} review${p.total_reviews > 1 ? 's' : ''}</p>
+      <p style="margin-top:8px;font-size:0.85rem">Detailed reviews will appear here after the reviews API is implemented.</p>
+    </div>`;
+  } else {
+    el.innerHTML = '<div class="no-reviews">No reviews yet. Be the first to review this editor!</div>';
+  }
+}
+
+function renderSimilarEditors(p) {
+  const el = document.getElementById('similar-editors-grid');
+  if (!el) return;
+  
+  // Fetch similar editors based on category
+  if (p.category) {
+    fetchSimilarEditors(p.category, p.user_id);
+  } else {
+    el.innerHTML = '<p style="color:#475569;font-size:0.85rem;grid-column:1/-1">No similar editors found.</p>';
+  }
+}
+
+async function fetchSimilarEditors(category, currentUserId) {
+  const el = document.getElementById('similar-editors-grid');
+  if (!el) return;
+  
+  try {
+    const res = await fetch(`${API}/users/editors?category=${category}&per_page=3`);
+    const data = await res.json();
+    
+    if (!data.success || !data.data) {
+      el.innerHTML = '<p style="color:#475569;font-size:0.85rem;grid-column:1/-1">No similar editors found.</p>';
+      return;
+    }
+    
+    // Filter out current editor
+    const editors = data.data.filter(e => e.user_id !== currentUserId).slice(0, 3);
+    
+    if (editors.length === 0) {
+      el.innerHTML = '<p style="color:#475569;font-size:0.85rem;grid-column:1/-1">No similar editors found.</p>';
+      return;
+    }
+    
+    el.innerHTML = editors.map(editor => {
+      const initials = (editor.full_name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const avatarHtml = editor.profile_photo 
+        ? `<img src="${UPLOADS}/avatars/${editor.profile_photo}" alt="${editor.full_name}">`
+        : initials;
+      
+      return `
+        <a href="editor-profile.html?id=${editor.user_id}" class="similar-editor-card">
+          <div class="similar-editor-avatar">${avatarHtml}</div>
+          <div class="similar-editor-name">${editor.full_name}</div>
+          <div class="similar-editor-category">${categoryLabel(editor.category)}</div>
+          <div class="similar-editor-rating">
+            <span>${stars(editor.avg_rating || 0)}</span>
+            <span style="color:#64748B;margin-left:4px">(${editor.total_reviews || 0})</span>
+          </div>
+          <div class="similar-editor-price">${editor.hourly_rate ? formatCurrency(editor.hourly_rate) + '/hr' : 'Contact for price'}</div>
+        </a>
+      `;
+    }).join('');
+    
+  } catch (err) {
+    console.error('Failed to fetch similar editors:', err);
+    el.innerHTML = '<p style="color:#475569;font-size:0.85rem;grid-column:1/-1">Failed to load similar editors.</p>';
+  }
+}
+
 /* ─────────────────────────────────────────────
    Lightbox for portfolio images
 ───────────────────────────────────────────── */
@@ -291,6 +367,20 @@ function initHireButton(userId) {
     } else {
       // Week 3: navigate to order/gig page
       toast('Hiring flow coming in Week 3!', 'info');
+    }
+  });
+}
+
+function initChatButton(userId) {
+  const btn = document.getElementById('chat-btn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const token = localStorage.getItem('cc_token');
+    if (!token) {
+      window.location.href = `login.html?redirect=editor-profile.html?id=${userId}`;
+    } else {
+      // Week 3: navigate to chat page
+      toast('Chat feature coming in Week 3!', 'info');
     }
   });
 }
@@ -369,7 +459,10 @@ async function init() {
     renderPortfolioImages(p);
     renderPortfolioVideos(p);
     renderResume(p);
+    renderReviews(p);
+    renderSimilarEditors(p);
     initHireButton(userId);
+    initChatButton(userId);
 
     // Show content
     qs('.profile-content')?.style.setProperty('display', 'block');

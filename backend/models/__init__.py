@@ -14,8 +14,12 @@ from models.user_model import User
 from models.editor_profile_model import EditorProfile, EditorCategory, AvailabilityStatus
 from models.client_profile_model import ClientProfile
 
+# Week 3
+from models.project_model import Project, BudgetType, ProjectVisibility, ProjectStatus
+
 __all__ = [
     'User',
     'EditorProfile', 'EditorCategory', 'AvailabilityStatus',
     'ClientProfile',
+    'Project', 'BudgetType', 'ProjectVisibility', 'ProjectStatus',
 ]

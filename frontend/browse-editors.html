@@ -54,29 +54,47 @@
   <button class="cat-pill active" data-cat="">
     <span class="cat-pill__emoji">🌟</span> All Categories
   </button>
-  <button class="cat-pill" data-cat="youtube">
-    <span class="cat-pill__emoji">▶️</span> YouTube
-  </button>
-  <button class="cat-pill" data-cat="reels">
-    <span class="cat-pill__emoji">🎬</span> Reels &amp; Shorts
-  </button>
   <button class="cat-pill" data-cat="wedding">
     <span class="cat-pill__emoji">💍</span> Wedding
   </button>
-  <button class="cat-pill" data-cat="corporate">
-    <span class="cat-pill__emoji">💼</span> Corporate
+  <button class="cat-pill" data-cat="youtube">
+    <span class="cat-pill__emoji">▶️</span> YouTube
   </button>
-  <button class="cat-pill" data-cat="motion_graphics">
-    <span class="cat-pill__emoji">✨</span> Motion Graphics
+  <button class="cat-pill" data-cat="gaming">
+    <span class="cat-pill__emoji">🎮</span> Gaming
+  </button>
+  <button class="cat-pill" data-cat="reels">
+    <span class="cat-pill__emoji">🎬</span> Reels
   </button>
   <button class="cat-pill" data-cat="podcast">
     <span class="cat-pill__emoji">🎙️</span> Podcast
   </button>
-  <button class="cat-pill" data-cat="ecommerce">
-    <span class="cat-pill__emoji">🛒</span> E-Commerce
-  </button>
   <button class="cat-pill" data-cat="documentary">
     <span class="cat-pill__emoji">🎥</span> Documentary
+  </button>
+  <button class="cat-pill" data-cat="short_film">
+    <span class="cat-pill__emoji">🎞️</span> Short Film
+  </button>
+  <button class="cat-pill" data-cat="motion_graphics">
+    <span class="cat-pill__emoji">✨</span> Motion Graphics
+  </button>
+  <button class="cat-pill" data-cat="vfx">
+    <span class="cat-pill__emoji">🔮</span> VFX
+  </button>
+  <button class="cat-pill" data-cat="colorist">
+    <span class="cat-pill__emoji">�</span> Colorist
+  </button>
+  <button class="cat-pill" data-cat="thumbnail_designer">
+    <span class="cat-pill__emoji">�️</span> Thumbnail
+  </button>
+  <button class="cat-pill" data-cat="audio_editor">
+    <span class="cat-pill__emoji">🎵</span> Audio
+  </button>
+  <button class="cat-pill" data-cat="subtitle_editor">
+    <span class="cat-pill__emoji">📝</span> Subtitle
+  </button>
+  <button class="cat-pill" data-cat="ai_video_editor">
+    <span class="cat-pill__emoji">🤖</span> AI Video
   </button>
   <button class="cat-pill" data-cat="other">
     <span class="cat-pill__emoji">🎞️</span> Other
@@ -117,29 +135,24 @@
       <div class="filter-title">Category</div>
 
       <label class="filter-option">
-        <input type="checkbox" class="cat-check" value="youtube">
-        <div class="filter-checkbox"></div>
-        <span class="filter-option__label">▶️ YouTube</span>
-      </label>
-      <label class="filter-option">
-        <input type="checkbox" class="cat-check" value="reels">
-        <div class="filter-checkbox"></div>
-        <span class="filter-option__label">🎬 Reels &amp; Shorts</span>
-      </label>
-      <label class="filter-option">
         <input type="checkbox" class="cat-check" value="wedding">
         <div class="filter-checkbox"></div>
         <span class="filter-option__label">💍 Wedding</span>
       </label>
       <label class="filter-option">
-        <input type="checkbox" class="cat-check" value="corporate">
+        <input type="checkbox" class="cat-check" value="youtube">
         <div class="filter-checkbox"></div>
-        <span class="filter-option__label">💼 Corporate</span>
+        <span class="filter-option__label">▶️ YouTube</span>
       </label>
       <label class="filter-option">
-        <input type="checkbox" class="cat-check" value="motion_graphics">
+        <input type="checkbox" class="cat-check" value="gaming">
         <div class="filter-checkbox"></div>
-        <span class="filter-option__label">✨ Motion Graphics</span>
+        <span class="filter-option__label">🎮 Gaming</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="reels">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🎬 Reels</span>
       </label>
       <label class="filter-option">
         <input type="checkbox" class="cat-check" value="podcast">
@@ -147,14 +160,49 @@
         <span class="filter-option__label">🎙️ Podcast</span>
       </label>
       <label class="filter-option">
-        <input type="checkbox" class="cat-check" value="ecommerce">
-        <div class="filter-checkbox"></div>
-        <span class="filter-option__label">🛒 E-Commerce</span>
-      </label>
-      <label class="filter-option">
         <input type="checkbox" class="cat-check" value="documentary">
         <div class="filter-checkbox"></div>
         <span class="filter-option__label">🎥 Documentary</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="short_film">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🎞️ Short Film</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="motion_graphics">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">✨ Motion Graphics</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="vfx">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🔮 VFX</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="colorist">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">� Colorist</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="thumbnail_designer">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">�️ Thumbnail Designer</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="audio_editor">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🎵 Audio Editor</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="subtitle_editor">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">📝 Subtitle Editor</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="ai_video_editor">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🤖 AI Video Editor</span>
       </label>
     </div>
 
@@ -194,6 +242,79 @@
           <span>₹500</span>
           <span>₹25,000</span>
         </div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── Experience ── -->
+    <div class="filter-section">
+      <div class="filter-title">Minimum Experience</div>
+      <div class="exp-options">
+        <label class="filter-option">
+          <input type="radio" name="experience" value="0" checked>
+          <div class="filter-radio"></div>
+          <span class="filter-option__label">Any</span>
+        </label>
+        <label class="filter-option">
+          <input type="radio" name="experience" value="1">
+          <div class="filter-radio"></div>
+          <span class="filter-option__label">1+ years</span>
+        </label>
+        <label class="filter-option">
+          <input type="radio" name="experience" value="3">
+          <div class="filter-radio"></div>
+          <span class="filter-option__label">3+ years</span>
+        </label>
+        <label class="filter-option">
+          <input type="radio" name="experience" value="5">
+          <div class="filter-radio"></div>
+          <span class="filter-option__label">5+ years</span>
+        </label>
+        <label class="filter-option">
+          <input type="radio" name="experience" value="10">
+          <div class="filter-radio"></div>
+          <span class="filter-option__label">10+ years</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── Software ── -->
+    <div class="filter-section">
+      <div class="filter-title">Software</div>
+      <div style="position:relative">
+        <input type="text"
+               id="filter-software"
+               placeholder="e.g. Premiere Pro, DaVinci…"
+               style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;color:var(--text-1);font-size:.83rem;outline:none;transition:var(--trans)">
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="software-quick">
+        <button onclick="setSoftware('Premiere Pro')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Premiere Pro</button>
+        <button onclick="setSoftware('DaVinci Resolve')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">DaVinci</button>
+        <button onclick="setSoftware('After Effects')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">After Effects</button>
+        <button onclick="setSoftware('Final Cut Pro')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Final Cut</button>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── Language ── -->
+    <div class="filter-section">
+      <div class="filter-title">Language</div>
+      <div style="position:relative">
+        <input type="text"
+               id="filter-language"
+               placeholder="e.g. Hindi, English…"
+               style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;color:var(--text-1);font-size:.83rem;outline:none;transition:var(--trans)">
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="language-quick">
+        <button onclick="setLanguage('English')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">English</button>
+        <button onclick="setLanguage('Hindi')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Hindi</button>
+        <button onclick="setLanguage('Tamil')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Tamil</button>
+        <button onclick="setLanguage('Telugu')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Telugu</button>
+        <button onclick="setLanguage('Marathi')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Marathi</button>
       </div>
     </div>
 
@@ -266,6 +387,20 @@
   window.setCity = function(city) {
     state.filters.city = city;
     document.getElementById('filter-city').value = city;
+    resetAndFetch();
+  };
+
+  // Quick software set helper
+  window.setSoftware = function(software) {
+    state.filters.software = software;
+    document.getElementById('filter-software').value = software;
+    resetAndFetch();
+  };
+
+  // Quick language set helper
+  window.setLanguage = function(language) {
+    state.filters.language = language;
+    document.getElementById('filter-language').value = language;
     resetAndFetch();
   };
 </script>

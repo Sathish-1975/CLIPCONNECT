@@ -620,6 +620,23 @@ def list_editors():
     if available_only:
         query = query.filter(EditorProfile.availability_status == AvailabilityStatus.AVAILABLE)
 
+    # --- Additional filters ---
+    min_experience = request.args.get('min_experience', type=int)
+    if min_experience is not None:
+        query = query.filter(
+            or_(EditorProfile.experience_years == None, EditorProfile.experience_years >= min_experience)
+        )
+
+    software_filter = request.args.get('software', '').strip()
+    if software_filter:
+        # Filter by specific software in the software_used JSON array
+        query = query.filter(cast(EditorProfile.software_used, SQLText).ilike(f'%{software_filter}%'))
+
+    language_filter = request.args.get('language', '').strip()
+    if language_filter:
+        # Filter by specific language in the languages JSON array
+        query = query.filter(cast(EditorProfile.languages, SQLText).ilike(f'%{language_filter}%'))
+
     search_q = request.args.get('search', '').strip()
     search_type = request.args.get('search_type', 'all').strip().lower()  # all|name|skills|software|category|city
     if search_q:
