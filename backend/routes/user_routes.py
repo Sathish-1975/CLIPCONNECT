@@ -222,3 +222,25 @@ def notification_prefs(current_user):
     """PUT — Update notification preferences."""
     return client_ctrl.update_notification_prefs(current_user)
 
+
+# ============================================================
+# Editor Dashboard Routes
+# ============================================================
+
+import controllers.editor_dashboard_controller as editor_dash_ctrl
+
+
+@user_bp.route('/me/editor-dashboard', methods=['GET'])
+@token_required
+def editor_dashboard(current_user):
+    """GET /api/users/me/editor-dashboard — Full editor dashboard data."""
+    return editor_dash_ctrl.get_editor_dashboard(current_user)
+
+
+@user_bp.route('/me/availability', methods=['PUT'])
+@token_required
+def update_availability(current_user):
+    """PUT /api/users/me/availability — Toggle availability status."""
+    return editor_dash_ctrl.update_availability(current_user)
+
+

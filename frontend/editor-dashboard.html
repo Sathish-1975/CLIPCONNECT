@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor Dashboard — ClipConnect</title>
+  <meta name="description" content="Manage your projects, earnings, reviews and profile on ClipConnect Editor Dashboard.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/editor-dashboard.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-brand__logo">✂</div>
+      <div class="sidebar-brand__name">Clip<span>Connect</span></div>
+      <span class="sidebar-brand__badge">Editor</span>
+    </div>
+
+    <!-- User card -->
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+      <div class="sidebar-user__info">
+        <div class="sidebar-user__name" id="sidebar-name">Loading…</div>
+        <div class="sidebar-user__tag" id="sidebar-handle">@username</div>
+        <button class="avail-pill avail-pill--available" id="avail-pill" data-avail="available">
+          <span class="avail-pill__dot"></span>Available
+        </button>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <div class="nav-group">
+        <div class="nav-group-label">Dashboard</div>
+        <button class="nav-btn" data-section="overview">
+          <span class="nav-btn__icon">🏠</span><span class="nav-lbl">Overview</span>
+        </button>
+        <button class="nav-btn" data-section="requests">
+          <span class="nav-btn__icon">📩</span><span class="nav-lbl">Incoming Requests</span>
+          <span class="nav-btn__badge" id="req-badge" style="display:none">0</span>
+        </button>
+        <button class="nav-btn" data-section="projects">
+          <span class="nav-btn__icon">🎬</span><span class="nav-lbl">My Projects</span>
+        </button>
+        <button class="nav-btn" data-section="earnings">
+          <span class="nav-btn__icon">💰</span><span class="nav-lbl">Earnings</span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Insights</div>
+        <button class="nav-btn" data-section="reviews">
+          <span class="nav-btn__icon">⭐</span><span class="nav-lbl">Reviews</span>
+        </button>
+        <button class="nav-btn" data-section="analytics">
+          <span class="nav-btn__icon">📊</span><span class="nav-lbl">Analytics</span>
+        </button>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-group-label">Account</div>
+        <button class="nav-btn" data-section="profile">
+          <span class="nav-btn__icon">👤</span><span class="nav-lbl">My Profile</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Footer -->
+    <div class="sidebar-footer">
+      <a href="edit-profile.html" class="nav-btn" style="text-decoration:none">
+        <span class="nav-btn__icon">✏️</span><span class="nav-lbl">Edit Profile</span>
+      </a>
+      <a href="editor-profile.html" class="nav-btn" id="view-profile-link" style="text-decoration:none" target="_blank">
+        <span class="nav-btn__icon">🔗</span><span class="nav-lbl">Public Profile</span>
+      </a>
+      <button class="nav-btn" id="logout-btn">
+        <span class="nav-btn__icon">🚪</span><span class="nav-lbl">Log Out</span>
+      </button>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ══════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════ -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <button class="topbar-menu" id="topbar-menu">☰</button>
+      <div class="topbar-title" id="topbar-title">Overview</div>
+
+      <!-- Availability 3-way toggle -->
+      <div class="avail-toggle-group">
+        <button class="avail-toggle-btn active-available" id="avail-available" data-avail="available">🟢 Available</button>
+        <button class="avail-toggle-btn" id="avail-busy" data-avail="busy">🟡 Busy</button>
+        <button class="avail-toggle-btn" id="avail-on_vacation" data-avail="on_vacation">⚪ On Vacation</button>
+      </div>
+
+      <div class="topbar-right">
+        <a href="index.html" class="btn btn-secondary btn-sm">Home</a>
+        <div class="topbar-avatar" id="topbar-avatar">?</div>
+      </div>
+    </header>
+
+    <!-- ════ CONTENT ════ -->
+    <div class="content">
+
+
+      <!-- ══════════════════════════════════════════
+           OVERVIEW SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-overview">
+
+        <!-- Welcome banner -->
+        <div class="welcome-banner">
+          <div class="welcome-banner__left">
+            <div class="welcome-greeting" id="welcome-greeting">Good morning! 👋</div>
+            <div class="welcome-sub"      id="welcome-sub">Loading your dashboard…</div>
+            <div class="welcome-stats">
+              <div>
+                <div class="w-stat__val" id="w-stat-rating">—</div>
+                <div class="w-stat__lbl">Rating</div>
+              </div>
+              <div>
+                <div class="w-stat__val" id="w-stat-projects">—</div>
+                <div class="w-stat__lbl">Projects</div>
+              </div>
+              <div>
+                <div class="w-stat__val" id="w-stat-reviews">—</div>
+                <div class="w-stat__lbl">Reviews</div>
+              </div>
+            </div>
+          </div>
+          <div class="welcome-banner__right">
+            <div class="welcome-art">🎬</div>
+          </div>
+        </div>
+
+        <!-- Profile completion widget -->
+        <div class="completion-widget">
+
+          <!-- SVG ring -->
+          <div class="completion-ring">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#0EA5E9"/>
+                  <stop offset="100%" stop-color="#06B6D4"/>
+                </linearGradient>
+              </defs>
+              <circle class="ring-bg"   cx="40" cy="40" r="35"/>
+              <circle class="ring-fill" cx="40" cy="40" r="35" id="ring-fill"/>
+            </svg>
+            <div class="ring-text">
+              <div class="ring-pct"   id="comp-pct-ring">0%</div>
+              <div class="ring-label">Done</div>
+            </div>
+          </div>
+
+          <div class="completion-body">
+            <h3>Profile Completion — <span id="comp-pct-bar">0%</span></h3>
+            <div class="completion-bar-wrap">
+              <div class="completion-bar-fill" id="comp-bar-fill" style="width:0%"></div>
+            </div>
+            <div style="font-size:.73rem;color:#475569;margin-bottom:6px" id="comp-score"></div>
+            <div class="completion-missing" id="comp-missing">
+              <div class="skel" style="width:100px;height:20px"></div>
+              <div class="skel" style="width:120px;height:20px"></div>
+            </div>
+          </div>
+
+          <a href="edit-profile.html" class="btn btn-primary btn-sm" style="flex-shrink:0">Complete Profile →</a>
+        </div>
+
+        <!-- Availability toggle (full) -->
+        <div class="avail-section">
+          <div class="avail-section__left">
+            <h3>Availability Status</h3>
+            <p>Control whether clients can send you new project requests.</p>
+          </div>
+          <div class="avail-btns">
+            <button class="avail-opt sel-available" id="avail-opt-available" data-avail="available">
+              <span>🟢</span> Available
+            </button>
+            <button class="avail-opt" id="avail-opt-busy" data-avail="busy">
+              <span>🟡</span> Busy
+            </button>
+            <button class="avail-opt" id="avail-opt-on_vacation" data-avail="on_vacation">
+              <span>⚪</span> On Vacation
+            </button>
+          </div>
+        </div>
+
+        <!-- Stat cards -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon si-cyan">📩</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-requests">0</div>
+              <div class="stat-lbl">Incoming Requests</div>
+              <span class="stat-sub sub-flat">Awaiting response</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-blue">🎬</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-active">0</div>
+              <div class="stat-lbl">Active Projects</div>
+              <span class="stat-sub sub-flat">In progress</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-green">✅</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-completed">0</div>
+              <div class="stat-lbl">Completed Projects</div>
+              <span class="stat-sub sub-up">All time</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-orange">💰</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-earnings">₹0</div>
+              <div class="stat-lbl">Monthly Earnings</div>
+              <span class="stat-sub sub-flat">This month</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-red">⏳</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-pending">₹0</div>
+              <div class="stat-lbl">Pending Payments</div>
+              <span class="stat-sub sub-warn">Awaiting release</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-yellow">⭐</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-rating">0.0</div>
+              <div class="stat-lbl">Avg. Rating</div>
+              <span class="stat-sub sub-flat">Out of 5.0</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-purple">💬</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-reviews">0</div>
+              <div class="stat-lbl">Total Reviews</div>
+              <span class="stat-sub sub-flat">From clients</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-green">🏦</div>
+            <div class="stat-body">
+              <div class="stat-val" id="stat-total-earn">₹0</div>
+              <div class="stat-lbl">Total Earnings</div>
+              <span class="stat-sub sub-up">Lifetime</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column: activity + quick actions -->
+        <div class="two-col">
+
+          <!-- Recent requests preview -->
+          <div class="panel panel-last">
+            <div class="panel-hd">
+              <h3><span>📩</span> Recent Requests</h3>
+              <button class="panel-action" onclick="document.querySelector('.nav-btn[data-section=requests]').click()">View All →</button>
+            </div>
+            <div class="panel-body">
+              <div id="overview-requests">
+                <div class="empty">
+                  <div class="empty__icon">📭</div>
+                  <div class="empty__title">No requests yet</div>
+                  <div class="empty__desc">Complete your profile so clients can find and hire you. A complete profile gets 5× more requests.</div>
+                  <a href="edit-profile.html" class="btn btn-primary btn-sm">Complete Profile</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div>
+            <div class="panel" style="margin-bottom:16px">
+              <div class="panel-hd"><h3><span>⚡</span> Quick Actions</h3></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:10px">
+                <a href="edit-profile.html"       class="btn btn-primary btn-blk">✏️ Edit Profile</a>
+                <a href="editor-profile.html" id="q-view-profile" class="btn btn-secondary btn-blk" target="_blank">🔗 View Public Profile</a>
+                <button class="btn btn-secondary btn-blk" onclick="document.querySelector('.nav-btn[data-section=earnings]').click()">💰 View Earnings</button>
+                <button class="btn btn-secondary btn-blk" onclick="document.querySelector('.nav-btn[data-section=analytics]').click()">📊 Analytics</button>
+              </div>
+            </div>
+
+            <!-- Tips card -->
+            <div class="panel panel-last" style="background:linear-gradient(135deg,rgba(14,165,233,.06),rgba(6,182,212,.04));border-color:rgba(14,165,233,.15)">
+              <div class="panel-hd"><h3><span>💡</span> Tips to Grow</h3></div>
+              <div class="panel-body">
+                <div style="display:flex;flex-direction:column;gap:10px;font-size:.82rem">
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <span style="color:#0EA5E9;flex-shrink:0;margin-top:1px">①</span>
+                    <span style="color:#94A3B8">Upload <strong style="color:#F1F5F9">portfolio samples</strong> to showcase your best work to clients.</span>
+                  </div>
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <span style="color:#0EA5E9;flex-shrink:0;margin-top:1px">②</span>
+                    <span style="color:#94A3B8">Set <strong style="color:#F1F5F9">competitive pricing</strong> — editors with clear rates get 3× more enquiries.</span>
+                  </div>
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <span style="color:#0EA5E9;flex-shrink:0;margin-top:1px">③</span>
+                    <span style="color:#94A3B8">Keep your <strong style="color:#F1F5F9">availability up to date</strong> so you don't miss urgent projects.</span>
+                  </div>
+                  <div style="display:flex;gap:10px;align-items:flex-start">
+                    <span style="color:#0EA5E9;flex-shrink:0;margin-top:1px">④</span>
+                    <span style="color:#94A3B8">Add <strong style="color:#F1F5F9">social links</strong> — LinkedIn and YouTube links build client trust.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section><!-- /overview -->
+
+
+      <!-- ══════════════════════════════════════════
+           INCOMING REQUESTS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-requests">
+        <div class="section-head">
+          <div>
+            <h2>Incoming Requests</h2>
+            <p>Project requests from clients — accept or decline within 48 hours.</p>
+          </div>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <select class="btn btn-secondary" style="font-size:.8rem;padding:7px 12px">
+            <option>All Requests</option>
+            <option>New</option>
+            <option>Pending Reply</option>
+          </select>
+        </div>
+
+        <div class="panel">
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Project</th><th>Category</th>
+                  <th>Budget</th><th>Status</th><th>Received</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="requests-tbody"></tbody>
+            </table>
+            <div id="requests-empty" style="display:none">
+              <div class="empty">
+                <div class="empty__icon">📩</div>
+                <div class="empty__title">No requests yet</div>
+                <div class="empty__desc">Once clients discover your profile and send project requests, they'll appear here.<br>Make sure your profile is complete and your availability is set to <strong>Available</strong>.</div>
+                <a href="edit-profile.html" class="btn btn-primary">Complete Profile →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section><!-- /requests -->
+
+
+      <!-- ══════════════════════════════════════════
+           MY PROJECTS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-projects">
+        <div class="section-head">
+          <div>
+            <h2>My Projects</h2>
+            <p>Track all your active, completed and cancelled projects.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <select class="btn btn-secondary" style="font-size:.8rem;padding:7px 12px">
+            <option>All Projects</option>
+            <option>Active</option>
+            <option>Completed</option>
+            <option>Cancelled</option>
+          </select>
+        </div>
+
+        <div class="panel">
+          <div style="overflow-x:auto">
+            <table class="data-table">
+              <thead>
+                <tr><th>Project</th><th>Client</th><th>Status</th><th>Due Date</th><th>Amount</th><th></th></tr>
+              </thead>
+              <tbody id="projects-tbody"></tbody>
+            </table>
+            <div id="projects-empty" style="display:none">
+              <div class="empty">
+                <div class="empty__icon">🎬</div>
+                <div class="empty__title">No projects yet</div>
+                <div class="empty__desc">Accepted project requests will appear here. Start by completing your profile so clients can find you.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section><!-- /projects -->
+
+
+      <!-- ══════════════════════════════════════════
+           EARNINGS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-earnings">
+        <div class="section-head">
+          <div>
+            <h2>Earnings</h2>
+            <p>Track your monthly income, pending payments and withdrawal history.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="toast('Withdrawals coming in Week 3!','info')">Request Payout</button>
+        </div>
+
+        <div class="two-col">
+          <!-- Chart panel -->
+          <div class="panel panel-last">
+            <div class="panel-hd">
+              <h3><span>📈</span> 6-Month Earnings Trend</h3>
+            </div>
+            <div class="panel-body">
+              <!-- Totals -->
+              <div class="earnings-total">
+                <div class="earnings-amount" id="earn-monthly">₹0</div>
+                <div class="earnings-period">This month</div>
+              </div>
+              <!-- CSS bar chart -->
+              <div class="earnings-chart" id="earnings-chart">
+                <!-- Rendered by JS -->
+              </div>
+              <!-- Breakdown cards -->
+              <div class="earnings-breakdown">
+                <div class="earn-item">
+                  <div class="earn-item__val earn-val-green" id="earn-total">₹0</div>
+                  <div class="earn-item__lbl">Total Earned (All Time)</div>
+                </div>
+                <div class="earn-item">
+                  <div class="earn-item__val earn-val-orange" id="earn-pending">₹0</div>
+                  <div class="earn-item__lbl">Pending Release</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right column -->
+          <div>
+            <!-- Payout info -->
+            <div class="panel" style="margin-bottom:16px">
+              <div class="panel-hd"><h3><span>🏦</span> Payout Details</h3></div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+                  <div>
+                    <div style="font-size:.84rem;font-weight:600">Available Balance</div>
+                    <div style="font-size:.75rem;color:#475569">Ready to withdraw</div>
+                  </div>
+                  <div style="font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;color:#10B981">₹0</div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#94A3B8;padding:4px 0">
+                  <span>Platform Fee</span><span style="color:#F1F5F9">10%</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#94A3B8;padding:4px 0">
+                  <span>Payout Method</span><span style="color:#F1F5F9">Not set up</span>
+                </div>
+                <button class="btn btn-primary btn-blk btn-sm" onclick="toast('Payout setup coming soon!','info')">Set Up Payout →</button>
+              </div>
+            </div>
+
+            <!-- Payout history -->
+            <div class="panel panel-last">
+              <div class="panel-hd"><h3><span>📋</span> Payout History</h3></div>
+              <div class="panel-body">
+                <div class="empty" style="padding:24px 0">
+                  <div class="empty__icon" style="font-size:1.8rem">📭</div>
+                  <div class="empty__title" style="font-size:.85rem">No payouts yet</div>
+                  <div class="empty__desc" style="font-size:.76rem">Your withdrawal history will appear here.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section><!-- /earnings -->
+
+
+      <!-- ══════════════════════════════════════════
+           REVIEWS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-reviews">
+        <div class="section-head">
+          <div>
+            <h2>Reviews &amp; Ratings</h2>
+            <p>What clients are saying about your work.</p>
+          </div>
+        </div>
+
+        <div class="panel panel-last">
+          <div class="panel-body">
+
+            <!-- Summary -->
+            <div class="review-summary">
+              <div class="review-big-rating">
+                <div class="review-big-rating__val" id="review-avg-big">0.0</div>
+                <div class="review-big-rating__stars" id="review-stars-big">☆☆☆☆☆</div>
+                <div class="review-big-rating__count" id="review-total-cnt">Based on 0 reviews</div>
+              </div>
+
+              <!-- Star bars -->
+              <div class="review-bars">
+                <div class="review-bar-row">
+                  <span class="review-bar-row__star">5★</span>
+                  <div class="review-bar-row__bar"><div class="review-bar-fill" style="width:0%"></div></div>
+                  <span class="review-bar-row__pct">0%</span>
+                </div>
+                <div class="review-bar-row">
+                  <span class="review-bar-row__star">4★</span>
+                  <div class="review-bar-row__bar"><div class="review-bar-fill" style="width:0%"></div></div>
+                  <span class="review-bar-row__pct">0%</span>
+                </div>
+                <div class="review-bar-row">
+                  <span class="review-bar-row__star">3★</span>
+                  <div class="review-bar-row__bar"><div class="review-bar-fill" style="width:0%"></div></div>
+                  <span class="review-bar-row__pct">0%</span>
+                </div>
+                <div class="review-bar-row">
+                  <span class="review-bar-row__star">2★</span>
+                  <div class="review-bar-row__bar"><div class="review-bar-fill" style="width:0%"></div></div>
+                  <span class="review-bar-row__pct">0%</span>
+                </div>
+                <div class="review-bar-row">
+                  <span class="review-bar-row__star">1★</span>
+                  <div class="review-bar-row__bar"><div class="review-bar-fill" style="width:0%"></div></div>
+                  <span class="review-bar-row__pct">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Individual reviews -->
+            <div id="review-list"></div>
+            <div id="reviews-empty">
+              <div class="empty">
+                <div class="empty__icon">⭐</div>
+                <div class="empty__title">No reviews yet</div>
+                <div class="empty__desc">Complete projects and deliver great work — satisfied clients leave reviews that help you win more business.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section><!-- /reviews -->
+
+
+      <!-- ══════════════════════════════════════════
+           ANALYTICS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-analytics">
+        <div class="section-head">
+          <div>
+            <h2>Analytics</h2>
+            <p>Performance metrics that help you understand and grow your business.</p>
+          </div>
+        </div>
+
+        <!-- Arc metric cards -->
+        <div class="analytics-grid">
+
+          <!-- Response Rate -->
+          <div class="analytics-card">
+            <div class="analytics-card__ring">
+              <svg width="70" height="70" viewBox="0 0 70 70">
+                <circle class="arc-bg"   cx="35" cy="35" r="27"/>
+                <circle class="arc-fill" cx="35" cy="35" r="27" id="arc-response-fill" stroke="#0EA5E9"/>
+              </svg>
+              <div class="arc-text" id="arc-response-text" style="color:#0EA5E9">—</div>
+            </div>
+            <div class="analytics-card__label">Response Rate</div>
+            <div class="analytics-card__sub">Replies within 24h</div>
+          </div>
+
+          <!-- Acceptance Rate -->
+          <div class="analytics-card">
+            <div class="analytics-card__ring">
+              <svg width="70" height="70" viewBox="0 0 70 70">
+                <circle class="arc-bg"   cx="35" cy="35" r="27"/>
+                <circle class="arc-fill" cx="35" cy="35" r="27" id="arc-acceptance-fill" stroke="#10B981"/>
+              </svg>
+              <div class="arc-text" id="arc-acceptance-text" style="color:#10B981">—</div>
+            </div>
+            <div class="analytics-card__label">Acceptance Rate</div>
+            <div class="analytics-card__sub">Requests accepted</div>
+          </div>
+
+          <!-- On-Time Delivery -->
+          <div class="analytics-card">
+            <div class="analytics-card__ring">
+              <svg width="70" height="70" viewBox="0 0 70 70">
+                <circle class="arc-bg"   cx="35" cy="35" r="27"/>
+                <circle class="arc-fill" cx="35" cy="35" r="27" id="arc-delivery-fill" stroke="#8B5CF6"/>
+              </svg>
+              <div class="arc-text" id="arc-delivery-text" style="color:#8B5CF6">—</div>
+            </div>
+            <div class="analytics-card__label">On-Time Delivery</div>
+            <div class="analytics-card__sub">Projects delivered on schedule</div>
+          </div>
+
+          <!-- Profile Completion -->
+          <div class="analytics-card">
+            <div class="analytics-card__ring">
+              <svg width="70" height="70" viewBox="0 0 70 70">
+                <circle class="arc-bg"   cx="35" cy="35" r="27"/>
+                <circle class="arc-fill" cx="35" cy="35" r="27" id="arc-completion-fill" stroke="#F59E0B"/>
+              </svg>
+              <div class="arc-text" id="arc-completion-text" style="color:#F59E0B">—</div>
+            </div>
+            <div class="analytics-card__label">Profile Strength</div>
+            <div class="analytics-card__sub">Profile completion score</div>
+          </div>
+
+        </div>
+
+        <!-- Extra stats row -->
+        <div class="stats-row" style="grid-template-columns:repeat(2,1fr);margin-bottom:22px">
+          <div class="stat-card">
+            <div class="stat-icon si-cyan">👁️</div>
+            <div class="stat-body">
+              <div class="stat-val" id="analytics-views">0</div>
+              <div class="stat-lbl">Profile Views</div>
+              <span class="stat-sub sub-flat">All time</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-purple">🔁</div>
+            <div class="stat-body">
+              <div class="stat-val" id="analytics-repeat">0</div>
+              <div class="stat-lbl">Repeat Clients</div>
+              <span class="stat-sub sub-flat">Clients who returned</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earnings chart -->
+        <div class="panel panel-last">
+          <div class="panel-hd"><h3><span>📈</span> Monthly Revenue Trend</h3></div>
+          <div class="panel-body">
+            <div class="earnings-chart" id="analytics-chart">
+              <!-- Rendered by JS on section activate -->
+            </div>
+            <div style="text-align:center;font-size:.8rem;color:#475569;margin-top:10px">
+              Revenue chart will populate as you complete projects
+            </div>
+          </div>
+        </div>
+
+      </section><!-- /analytics -->
+
+
+      <!-- ══════════════════════════════════════════
+           MY PROFILE SECTION
+      ══════════════════════════════════════════ -->
+      <section class="section" id="sec-profile">
+        <div class="section-head">
+          <div>
+            <h2>My Profile</h2>
+            <p>This is how clients see you. Keep it sharp and complete.</p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <a href="editor-profile.html" id="preview-profile-btn" class="btn btn-secondary" target="_blank">Preview Public Profile ↗</a>
+            <a href="edit-profile.html" class="btn btn-primary">Edit Profile →</a>
+          </div>
+        </div>
+
+        <!-- Profile preview card -->
+        <div class="panel">
+
+          <!-- Header with photo + name -->
+          <div class="profile-preview" id="profile-header">
+            <div class="profile-preview__avatar" id="profile-avatar">?</div>
+            <div class="profile-preview__info">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="profile-preview__name"  id="profile-name">—</div>
+                <span style="display:none;align-items:center;gap:4px;font-size:.75rem;background:rgba(14,165,233,.12);color:#38BDF8;border:1px solid rgba(14,165,233,.2);padding:2px 9px;border-radius:20px" id="profile-verified">✓ Verified</span>
+              </div>
+              <div class="profile-preview__handle"  id="profile-handle">—</div>
+              <div class="profile-preview__tagline" id="profile-tagline">—</div>
+            </div>
+          </div>
+
+          <!-- Quick info row -->
+          <div class="quick-info">
+            <div class="qi-item"><span class="qi-item__icon">🎨</span><span id="profile-cat">—</span></div>
+            <div class="qi-item"><span class="qi-item__icon">📅</span><span id="profile-exp">—</span></div>
+            <div class="qi-item"><span class="qi-item__icon">📍</span><span id="profile-loc">—</span></div>
+            <div class="qi-item"><span class="qi-item__icon">💰</span><span id="profile-rate">—</span></div>
+            <div class="qi-item"><span class="qi-item__icon">⚡</span><span id="profile-resp">—</span></div>
+            <div class="qi-item"><span class="qi-item__icon">📦</span><span id="profile-port">—</span></div>
+          </div>
+
+          <!-- Availability row -->
+          <div style="padding:12px 18px;border-top:1px solid var(--border)">
+            <span style="font-size:.8rem;color:#475569">Status: </span>
+            <span id="profile-avail" style="font-size:.82rem;font-weight:600;color:#0EA5E9">—</span>
+          </div>
+
+          <!-- Skills -->
+          <div style="padding:12px 18px 4px;border-top:1px solid var(--border)">
+            <div style="font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;margin-bottom:10px">Skills</div>
+          </div>
+          <div class="skill-chips" id="profile-skills"></div>
+
+          <!-- CTA -->
+          <div style="padding:18px;border-top:1px solid var(--border);display:flex;gap:10px">
+            <a href="edit-profile.html" class="btn btn-primary">✏️ Edit Profile</a>
+            <a href="editor-profile.html" id="profile-view-pub" class="btn btn-secondary" target="_blank">🔗 View Public Profile</a>
+          </div>
+
+        </div>
+
+      </section><!-- /profile -->
+
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+
+</div><!-- /shell -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/editor-dashboard.js"></script>
+
+<script>
+  // Wire analytics chart copy to the analytics section
+  document.querySelector('.nav-btn[data-section="analytics"]')?.addEventListener('click', () => {
+    setTimeout(() => {
+      const src = document.getElementById('earnings-chart');
+      const dst = document.getElementById('analytics-chart');
+      if (src && dst && src.innerHTML) dst.innerHTML = src.innerHTML;
+    }, 200);
+  });
+
+  // Set public profile links with user ID from JWT
+  (function() {
+    const user = (() => { try { return JSON.parse(localStorage.getItem('cc_user')); } catch { return null; } })();
+    if (user?.id) {
+      const url = `editor-profile.html?id=${user.id}`;
+      ['preview-profile-btn','profile-view-pub','q-view-profile','view-profile-link'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.href = url;
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
