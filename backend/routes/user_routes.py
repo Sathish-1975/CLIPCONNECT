@@ -244,3 +244,16 @@ def update_availability(current_user):
     return editor_dash_ctrl.update_availability(current_user)
 
 
+# ============================================================
+# Search Routes
+# ============================================================
+
+import controllers.search_controller as search_ctrl
+
+
+@user_bp.route('/search/suggest', methods=['GET'])
+def search_suggest():
+    """GET /api/users/search/suggest?q=... — Autocomplete suggestions."""
+    return search_ctrl.suggest_search()
+
+

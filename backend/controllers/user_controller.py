@@ -21,7 +21,8 @@ Handles all business logic for the editor profile system:
 
 import json
 from flask import request, current_app
-from sqlalchemy import or_
+from sqlalchemy import or_, cast
+from sqlalchemy import Text as SQLText
 
 from database import db
 from models.user_model import User, UserRole
@@ -620,16 +621,47 @@ def list_editors():
         query = query.filter(EditorProfile.availability_status == AvailabilityStatus.AVAILABLE)
 
     search_q = request.args.get('search', '').strip()
+    search_type = request.args.get('search_type', 'all').strip().lower()  # all|name|skills|software|category|city
     if search_q:
         like = f'%{search_q}%'
-        query = query.filter(
-            or_(
+        # Build field-specific filter
+        if search_type == 'name':
+            query = query.filter(or_(
+                User.full_name.ilike(like),
+                EditorProfile.username.ilike(like),
+            ))
+        elif search_type == 'skills':
+            query = query.filter(cast(EditorProfile.skills, SQLText).ilike(like))
+        elif search_type == 'software':
+            query = query.filter(cast(EditorProfile.software_used, SQLText).ilike(like))
+        elif search_type == 'category':
+            # Try enum match first, else text search on category column
+            cat_hit = None
+            for cat in EditorCategory:
+                if search_q.lower() in cat.value.lower() or search_q.lower() in cat.name.lower():
+                    cat_hit = cat
+                    break
+            if cat_hit:
+                query = query.filter(EditorProfile.category == cat_hit)
+            else:
+                query = query.filter(cast(EditorProfile.category, SQLText).ilike(like))
+        elif search_type == 'city':
+            query = query.filter(or_(
+                EditorProfile.city.ilike(like),
+                EditorProfile.country.ilike(like),
+            ))
+        else:  # 'all' — search across all 5 dimensions
+            query = query.filter(or_(
+                User.full_name.ilike(like),
                 EditorProfile.username.ilike(like),
                 EditorProfile.tagline.ilike(like),
                 EditorProfile.bio.ilike(like),
-                User.full_name.ilike(like),
-            )
-        )
+                EditorProfile.city.ilike(like),
+                EditorProfile.country.ilike(like),
+                cast(EditorProfile.skills, SQLText).ilike(like),
+                cast(EditorProfile.software_used, SQLText).ilike(like),
+                cast(EditorProfile.category, SQLText).ilike(like),
+            ))
 
     # --- Sorting ---
     sort_by = request.args.get('sort', 'rating').strip().lower()
