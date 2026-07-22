@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Editors — ClipConnect Marketplace</title>
+  <meta name="description" content="Find and hire the best freelance video editors on ClipConnect. Browse by category, rating, price and availability.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/browse-editors.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+
+  <!-- Brand -->
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand__icon">✂</div>
+    <div class="nav-brand__name">Clip<span>Connect</span></div>
+  </a>
+
+  <!-- Search bar -->
+  <div class="nav-search">
+    <span class="nav-search__icon">🔍</span>
+    <input type="text"
+           id="nav-search-input"
+           placeholder="Search editors by name, skill, or specialty…"
+           autocomplete="off">
+    <span class="nav-search__kbd">⌘K</span>
+  </div>
+
+  <!-- Filter toggle (mobile) -->
+  <button class="filter-toggle-btn" id="filter-toggle-btn">⚙️ Filters</button>
+
+  <!-- Editor count -->
+  <div class="nav-count" id="nav-count">Loading editors…</div>
+
+  <!-- Auth links -->
+  <div class="nav-links" id="nav-links">
+    <a href="login.html"    class="btn btn-outline btn-sm">Log In</a>
+    <a href="register.html" class="btn btn-primary  btn-sm">Sign Up Free</a>
+  </div>
+
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     CATEGORY PILL BAR  (Swiggy-style)
+══════════════════════════════════════════════════════════ -->
+<div class="category-bar">
+  <button class="cat-pill active" data-cat="">
+    <span class="cat-pill__emoji">🌟</span> All Categories
+  </button>
+  <button class="cat-pill" data-cat="youtube">
+    <span class="cat-pill__emoji">▶️</span> YouTube
+  </button>
+  <button class="cat-pill" data-cat="reels">
+    <span class="cat-pill__emoji">🎬</span> Reels &amp; Shorts
+  </button>
+  <button class="cat-pill" data-cat="wedding">
+    <span class="cat-pill__emoji">💍</span> Wedding
+  </button>
+  <button class="cat-pill" data-cat="corporate">
+    <span class="cat-pill__emoji">💼</span> Corporate
+  </button>
+  <button class="cat-pill" data-cat="motion_graphics">
+    <span class="cat-pill__emoji">✨</span> Motion Graphics
+  </button>
+  <button class="cat-pill" data-cat="podcast">
+    <span class="cat-pill__emoji">🎙️</span> Podcast
+  </button>
+  <button class="cat-pill" data-cat="ecommerce">
+    <span class="cat-pill__emoji">🛒</span> E-Commerce
+  </button>
+  <button class="cat-pill" data-cat="documentary">
+    <span class="cat-pill__emoji">🎥</span> Documentary
+  </button>
+  <button class="cat-pill" data-cat="other">
+    <span class="cat-pill__emoji">🎞️</span> Other
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN MARKETPLACE  (sidebar + grid)
+══════════════════════════════════════════════════════════ -->
+<div class="marketplace">
+
+  <!-- ── FILTER SIDEBAR ── -->
+  <aside class="sidebar" id="filter-sidebar">
+
+    <!-- Mobile close -->
+    <button class="mobile-sidebar-close" id="sidebar-close-btn">✕ Close</button>
+
+    <div class="sidebar-hd">
+      <h3>🔧 Filters</h3>
+      <button class="clear-btn" onclick="clearAllFilters()">Clear all</button>
+    </div>
+
+    <!-- ── Availability ── -->
+    <div class="filter-section">
+      <div class="filter-title">Availability</div>
+      <label class="filter-option">
+        <input type="checkbox" id="filter-available">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">Available Now</span>
+        <span>🟢</span>
+      </label>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── Category ── -->
+    <div class="filter-section">
+      <div class="filter-title">Category</div>
+
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="youtube">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">▶️ YouTube</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="reels">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🎬 Reels &amp; Shorts</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="wedding">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">💍 Wedding</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="corporate">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">💼 Corporate</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="motion_graphics">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">✨ Motion Graphics</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="podcast">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🎙️ Podcast</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="ecommerce">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🛒 E-Commerce</span>
+      </label>
+      <label class="filter-option">
+        <input type="checkbox" class="cat-check" value="documentary">
+        <div class="filter-checkbox"></div>
+        <span class="filter-option__label">🎥 Documentary</span>
+      </label>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── Rating ── -->
+    <div class="filter-section">
+      <div class="filter-title">Minimum Rating</div>
+      <div class="star-options">
+        <div class="star-opt" data-rating="4.5">
+          <span class="star-opt__stars">★★★★★</span>
+          <span class="star-opt__label">4.5 &amp; above</span>
+        </div>
+        <div class="star-opt" data-rating="4.0">
+          <span class="star-opt__stars">★★★★☆</span>
+          <span class="star-opt__label">4.0 &amp; above</span>
+        </div>
+        <div class="star-opt" data-rating="3.0">
+          <span class="star-opt__stars">★★★☆☆</span>
+          <span class="star-opt__label">3.0 &amp; above</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── Budget / Rate ── -->
+    <div class="filter-section">
+      <div class="filter-title">Max Hourly Rate</div>
+      <div class="range-wrap">
+        <div class="range-labels">
+          <span>₹0</span>
+          <span class="range-label-val" id="filter-rate-label">Any</span>
+        </div>
+        <input type="range" id="filter-max-rate" min="500" max="25000" step="500" value="25000">
+        <div class="range-labels" style="margin-top:6px">
+          <span>₹500</span>
+          <span>₹25,000</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <!-- ── City ── -->
+    <div class="filter-section">
+      <div class="filter-title">City</div>
+      <div style="position:relative">
+        <input type="text"
+               id="filter-city"
+               placeholder="e.g. Mumbai, Delhi…"
+               style="width:100%;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;color:var(--text-1);font-size:.83rem;outline:none;transition:var(--trans)">
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="city-quick">
+        <button onclick="setCity('Mumbai')"    class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Mumbai</button>
+        <button onclick="setCity('Delhi')"     class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Delhi</button>
+        <button onclick="setCity('Bangalore')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Bangalore</button>
+        <button onclick="setCity('Chennai')"   class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Chennai</button>
+        <button onclick="setCity('Hyderabad')" class="btn btn-outline btn-sm" style="font-size:.7rem;padding:4px 10px">Hyderabad</button>
+      </div>
+    </div>
+
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ── CONTENT ── -->
+  <main class="content">
+
+    <!-- Results bar -->
+    <div class="results-bar">
+      <div class="results-bar__left">
+        <div class="results-count" id="results-count">Loading…</div>
+        <div class="results-sub" id="results-sub">Finding the best editors for you…</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <button class="filter-toggle-btn" id="filter-toggle-btn-top" onclick="document.getElementById('filter-toggle-btn').click()">
+          ⚙️ Filters
+        </button>
+        <select class="sort-select" id="sort-select">
+          <option value="rating">⭐ Top Rated</option>
+          <option value="projects">✅ Most Projects</option>
+          <option value="rate_asc">💰 Price: Low to High</option>
+          <option value="rate_desc">💰 Price: High to Low</option>
+          <option value="newest">🆕 Newest First</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active filter chips -->
+    <div class="active-filters" id="active-filters"></div>
+
+    <!-- Editors grid -->
+    <div class="editors-grid" id="editors-grid">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/browse-editors.js"></script>
+<script>
+  // Quick city set helper
+  window.setCity = function(city) {
+    state.filters.city = city;
+    document.getElementById('filter-city').value = city;
+    resetAndFetch();
+  };
+</script>
+
+</body>
+</html>

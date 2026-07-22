@@ -564,9 +564,11 @@ def list_editors():
         per_page     (int)  default 12, max 50
         category     (str)  filter by EditorCategory value
         country      (str)  filter by country
+        city         (str)  filter by city
         min_rating   (float) minimum avg_rating
+        min_rate     (float) minimum hourly_rate
         max_rate     (float) max hourly_rate
-        search       (str)  search username, bio, tagline, skills
+        search       (str)  search username, bio, tagline, name
         available    (bool) only show available editors
         sort         (str)  'rating' | 'projects' | 'rate_asc' | 'rate_desc' | 'newest'
     """
@@ -597,11 +599,21 @@ def list_editors():
     if min_rating is not None:
         query = query.filter(EditorProfile.avg_rating >= min_rating)
 
+    min_rate = request.args.get('min_rate', type=float)
+    if min_rate is not None:
+        query = query.filter(
+            or_(EditorProfile.hourly_rate == None, EditorProfile.hourly_rate >= min_rate)
+        )
+
     max_rate = request.args.get('max_rate', type=float)
     if max_rate is not None:
         query = query.filter(
             or_(EditorProfile.hourly_rate == None, EditorProfile.hourly_rate <= max_rate)
         )
+
+    city_val = request.args.get('city', '').strip()
+    if city_val:
+        query = query.filter(EditorProfile.city.ilike(f'%{city_val}%'))
 
     available_only = request.args.get('available', '').lower() in ('true', '1', 'yes')
     if available_only:
