@@ -3,22 +3,23 @@
 ClipConnect - Project Controller
 ============================================================
 Why this file exists:
-  Provides controller logic for client project creation,
-  editing, listing, publishing, draft saving, closing, and soft deleting.
+  Provides controller logic for client project creation, editing, listing,
+  publishing, draft saving, status management, timeline tracking, and soft deleting.
 
-How it works:
-  - `create_project()`: Parses JSON, validates inputs, creates a Project record (draft/published).
-  - `get_projects()`: Lists public published projects with pagination & filtering.
+What it does:
+  - `create_project()`: Validates inputs (title, budget, priority, experience, software),
+    creates a Project record, and initializes timeline tracking.
+  - `get_public_projects()`: Lists public published projects with pagination & filtering.
   - `get_my_projects()`: Lists client's own projects across all statuses.
-  - `get_project_by_id()`: Fetches details for a specific project.
+  - `get_project_by_id()`: Fetches project details, proposal counts, and saved state.
   - `update_project()`: Modifies an existing project owned by current user.
-  - `change_project_status()`: Toggles draft/published/closed state.
-  - `delete_project()`: Soft deletes (status = 'deleted') or removes project.
+  - `change_project_status()`: Manages status transitions and fires notifications.
+  - `delete_project()`: Soft deletes (status = 'deleted') project.
 
-Connections:
-  - `project_routes.py`
-  - `models/project_model.py`
-  - `middleware/auth_middleware.py`
+How it integrates with the rest of the application:
+  - Consumed by `project_routes.py`.
+  - Interfaces with `models/project_model.py`, `models/user_model.py`, `models/proposal_model.py`.
+  - Dispatches notifications via `utils/notification_helper.py`.
 ============================================================
 """
 
@@ -27,7 +28,7 @@ from flask import request, current_app
 from database import db
 from models.user_model import User, UserRole
 from models.editor_profile_model import EditorCategory
-from models.project_model import Project, BudgetType, ProjectVisibility, ProjectStatus
+from models.project_model import Project, BudgetType, ProjectVisibility, ProjectPriority, ProjectStatus
 from utils.response_helper import success_response, error_response, paginated_response
 from utils.upload_helper import save_upload
 
@@ -83,6 +84,15 @@ def create_project(current_user: dict):
     except ValueError:
         visibility_enum = ProjectVisibility.PUBLIC
 
+    # Priority
+    priority_val = (data.get('priority') or 'medium').strip().lower()
+    try:
+        priority_enum = ProjectPriority(priority_val)
+    except ValueError:
+        priority_enum = ProjectPriority.MEDIUM
+
+    experience_required = (data.get('experience_required') or 'Intermediate').strip()
+
     # Deadline
     deadline_dt = None
     if data.get('deadline'):
@@ -106,9 +116,19 @@ def create_project(current_user: dict):
         deadline=deadline_dt,
         required_skills=data.get('required_skills') or [],
         preferred_software=data.get('preferred_software') or [],
+        experience_required=experience_required,
+        priority=priority_enum,
         visibility=visibility_enum,
         editors_required=int(data.get('editors_required', 1)),
         status=status_enum
+    )
+
+    # Initialize timeline event
+    initial_event_title = "Project Draft Saved" if is_draft else "Project Created & Published"
+    project.add_timeline_event(
+        status_str=status_enum.value,
+        title=initial_event_title,
+        note="Project created by client."
     )
 
     try:
@@ -195,11 +215,32 @@ def get_project_by_id(project_id: int):
     GET /api/projects/<id>
     Get detailed information for a single project.
     """
+    from models.proposal_model import Proposal
+    from models.saved_project_model import SavedProject
+    from utils.jwt_helper import decode_token
+
     project = Project.query.get(project_id)
     if not project or project.status == ProjectStatus.DELETED:
         return error_response(message="Project not found.", status_code=404)
 
-    return success_response(data={'project': project.to_dict()}, message="Project details fetched.")
+    proposal_count = Proposal.query.filter_by(project_id=project_id).count()
+    project_data = project.to_dict()
+    project_data['proposal_count'] = proposal_count
+
+    # Check if saved by current user
+    auth_header = request.headers.get('Authorization')
+    is_saved = False
+    if auth_header and auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+        decoded = decode_token(token)
+        if decoded and decoded.get('role') == 'editor':
+            is_saved = SavedProject.query.filter_by(
+                editor_id=decoded['user_id'],
+                project_id=project_id
+            ).first() is not None
+
+    project_data['is_saved'] = is_saved
+    return success_response(data={'project': project_data}, message="Project details fetched.")
 
 
 def update_project(current_user: dict, project_id: int):
@@ -291,8 +332,11 @@ def update_project(current_user: dict, project_id: int):
 def change_project_status(current_user: dict, project_id: int):
     """
     PATCH /api/projects/<id>/status
-    Update status (publish, close, draft).
+    Update status (publish, close, draft, completed).
     """
+    from utils.notification_helper import create_notification
+    from datetime import timezone
+
     project = Project.query.get(project_id)
     if not project or project.status == ProjectStatus.DELETED:
         return error_response(message="Project not found.", status_code=404)
@@ -307,6 +351,51 @@ def change_project_status(current_user: dict, project_id: int):
         new_status = ProjectStatus(new_status_str)
         project.status = new_status
         db.session.commit()
+
+        # ── Notification: Project Completed ──────────────────────────────────
+        if new_status == ProjectStatus.COMPLETED:
+            # Notify the hired editor
+            if project.hired_editor_id:
+                create_notification(
+                    user_id=project.hired_editor_id,
+                    title="Project Completed 🎉",
+                    message=f"Project '{project.title}' has been marked as completed. Great work!",
+                    type_str="project_completed",
+                    related_project_id=project_id
+                )
+            # Notify the client (self-confirmation)
+            create_notification(
+                user_id=project.client_id,
+                title="Project Completed",
+                message=f"You marked project '{project.title}' as completed.",
+                type_str="project_completed",
+                related_project_id=project_id
+            )
+
+        # ── Notification: Deadline Near (check on status change too) ─────────
+        if project.deadline:
+            now = datetime.utcnow().replace(tzinfo=timezone.utc)
+            deadline_aware = project.deadline if project.deadline.tzinfo else project.deadline.replace(tzinfo=timezone.utc)
+            hours_left = (deadline_aware - now).total_seconds() / 3600
+            if 0 < hours_left <= 48:
+                # Notify the editor
+                if project.hired_editor_id:
+                    create_notification(
+                        user_id=project.hired_editor_id,
+                        title="⏰ Deadline Approaching",
+                        message=f"Project '{project.title}' deadline is in {int(hours_left)} hours!",
+                        type_str="deadline_near",
+                        related_project_id=project_id
+                    )
+                # Notify the client
+                create_notification(
+                    user_id=project.client_id,
+                    title="⏰ Deadline Approaching",
+                    message=f"Project '{project.title}' deadline is in {int(hours_left)} hours.",
+                    type_str="deadline_near",
+                    related_project_id=project_id
+                )
+
     except ValueError:
         valid = [s.value for s in ProjectStatus]
         return error_response(message=f"Invalid status. Must be one of: {', '.join(valid)}", status_code=422)
@@ -359,3 +448,128 @@ def upload_sample_file(current_user: dict):
         }, message="Sample file uploaded successfully.")
     except Exception as e:
         return error_response(message=f"Upload failed: {str(e)}", status_code=422)
+
+
+def apply_to_project(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/apply
+    Apply to a project as an editor.
+    """
+    from models.proposal_model import Proposal
+
+    if current_user.get('role') != 'editor':
+        return error_response(message="Only editors can apply to projects.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    existing = Proposal.query.filter_by(project_id=project_id, editor_id=current_user['user_id']).first()
+    if existing:
+        return error_response(message="You have already applied to this project.", status_code=400)
+
+    data = request.get_json(silent=True) or {}
+    proposal = Proposal(
+        project_id=project_id,
+        editor_id=current_user['user_id'],
+        cover_letter=data.get('cover_letter', 'Submitted application via project page.'),
+        proposed_price=data.get('proposed_price', project.budget_max or project.budget_min or 0),
+        status='pending'
+    )
+
+    try:
+        db.session.add(proposal)
+        db.session.commit()
+
+        # Trigger notification to client
+        from utils.notification_helper import create_notification
+        create_notification(
+            user_id=project.client_id,
+            title="New Proposal Submitted",
+            message=f"An editor applied to your project '{project.title}'.",
+            type_str="proposal_submitted",
+            related_project_id=project_id
+        )
+
+        return success_response(data={'proposal': proposal.to_dict()}, message="Application submitted successfully.")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message=f"Failed to submit application: {str(e)}", status_code=500)
+
+
+def hire_editor(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/hire
+    Client hires an editor for the project.
+    Changes project status to IN_PROGRESS and sends notifications.
+    """
+    from models.proposal_model import Proposal
+    from utils.notification_helper import create_notification
+
+    if current_user.get('role') != 'client':
+        return error_response(message="Only clients can hire editors.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    if project.client_id != current_user['user_id']:
+        return error_response(message="You can only hire editors for your own projects.", status_code=403)
+
+    data = request.get_json(silent=True) or {}
+    editor_id = data.get('editor_id')
+    if not editor_id:
+        return error_response(message="editor_id is required.", status_code=400)
+
+    proposal = Proposal.query.filter_by(project_id=project_id, editor_id=editor_id).first()
+    if not proposal:
+        return error_response(message="Proposal from this editor not found.", status_code=404)
+
+    try:
+        # Update project status and hired_editor_id
+        project.hired_editor_id = editor_id
+        project.status = ProjectStatus.IN_PROGRESS
+
+        # Update proposals status
+        proposal.status = 'accepted'
+
+        other_proposals = Proposal.query.filter(
+            Proposal.project_id == project_id,
+            Proposal.id != proposal.id
+        ).all()
+        for p in other_proposals:
+            p.status = 'rejected'
+            create_notification(
+                user_id=p.editor_id,
+                title="Proposal Rejected",
+                message=f"Your proposal for project '{project.title}' was not selected.",
+                type_str="proposal_rejected",
+                related_project_id=project_id
+            )
+
+        db.session.commit()
+
+        # Notify hired editor
+        create_notification(
+            user_id=editor_id,
+            title="Proposal Accepted / Project Assigned",
+            message=f"Congratulations! You were hired for project '{project.title}'.",
+            type_str="proposal_accepted",
+            related_project_id=project_id
+        )
+
+        # Notify client
+        create_notification(
+            user_id=project.client_id,
+            title="Project Assigned & In Progress",
+            message=f"Project '{project.title}' status is now In Progress.",
+            type_str="project_assigned",
+            related_project_id=project_id
+        )
+
+        return success_response(data={'project': project.to_dict()}, message="Editor hired successfully. Project status updated to In Progress.")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message=f"Failed to hire editor: {str(e)}", status_code=500)
+
+

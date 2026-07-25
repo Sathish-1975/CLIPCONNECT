@@ -1,0 +1,110 @@
+/* project-details.css – Glassmorphic premium UI */
+
+/* Global resets and typography */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0d0d0d 0%, #1e1e2f 100%);
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  color: #fff;
+  gap: .5rem;
+}
+.nav-brand__icon { font-size: 1.8rem; }
+.accent { color: #ff7e5f; }
+
+/* Container */
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.title {
+  font-size: 2rem;
+  margin-bottom: .5rem;
+  color: #fff;
+}
+
+/* Card component – glassmorphism */
+.card {
+  background: rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.card h2, .card h3 {
+  margin-top: 0;
+  color: #ff7e5f;
+}
+
+/* Grid layout for meta */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.meta p { font-weight: 500; }
+
+/* Tag chips */
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+.tag-container .tag {
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: .3rem .7rem;
+  font-size: .85rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: .6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .1s ease, background .2s ease;
+}
+.btn-primary {
+  background: #ff7e5f;
+  color: #fff;
+  border: none;
+}
+.btn-primary:hover { background: #ff9569; }
+.btn-secondary {
+  background: rgba(255,255,255,0.12);
+  color: #e0e0e0;
+  border: none;
+}
+.btn:hover { transform: translateY(-2px); }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .navbar { flex-direction: column; gap: .5rem; }
+  .title { font-size: 1.6rem; }
+}

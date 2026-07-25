@@ -7,8 +7,8 @@
  */
 'use strict';
 
-const API     = 'http://localhost:5001/api';
-const UPLOADS = 'http://localhost:5001/uploads';
+const API     = window.location.origin.includes(':5001') ? '/api' : 'http://localhost:5001/api';
+const UPLOADS = window.location.origin.includes(':5001') ? '/uploads' : 'http://localhost:5001/uploads';
 
 /* ── State ─────────────────────────────────────────────── */
 const state = {
@@ -561,10 +561,11 @@ function initMobileSidebar() {
 
 /* ── Hire flow ──────────────────────────────────────────── */
 function handleHire(editorId, editorName) {
-  const user = getUser();
-  if (!user) { toast('Please log in to hire an editor.', 'info'); setTimeout(() => window.location.href = 'login.html?redirect=browse-editors.html', 1800); return; }
-  if (user.role !== 'client') { toast('Only clients can hire editors.', 'info'); return; }
-  toast(`Hiring flow coming soon! (${editorName})`, 'info');
+  if (typeof openHireModal === 'function') {
+    openHireModal(editorId, editorName);
+  } else {
+    toast(`Hire modal loading... (${editorName})`, 'info');
+  }
 }
 
 /* ── Favorites ──────────────────────────────────────────── */
@@ -647,6 +648,28 @@ async function init() {
   initSort();
   initMobileSidebar();
   syncUIToState();
+
+  // Delegated click handling for grid buttons
+  document.getElementById('editors-grid')?.addEventListener('click', (e) => {
+    const hireBtn = e.target.closest('.btn-hire');
+    if (hireBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const editorId = hireBtn.dataset.id;
+      const editorName = hireBtn.dataset.name;
+      handleHire(editorId, editorName);
+      return;
+    }
+
+    const favBtn = e.target.closest('.btn-fav');
+    if (favBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const editorId = parseInt(favBtn.dataset.id, 10);
+      handleFavorite(favBtn, editorId);
+      return;
+    }
+  });
 
   // Load favorites if logged in as client
   await loadFavorites();

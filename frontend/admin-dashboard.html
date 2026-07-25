@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div class="nav-brand__name">Clip<span>Connect</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-outline btn-sm">User Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="admin-container">
+    <div class="admin-header">
+      <div>
+        <h1>🛡️ Admin Dashboard</h1>
+        <p style="color: #9ca3af; margin-top: 4px;">Platform analytics, user moderation, and financial audits</p>
+      </div>
+    </div>
+
+    <!-- Platform Stats -->
+    <div class="stats-grid" id="admin-stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">Total Users</div>
+        <div class="stat-value" id="stat-total-users">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Active Projects</div>
+        <div class="stat-value" id="stat-active-projects">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Escrow Balance</div>
+        <div class="stat-value" id="stat-escrow-balance">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-title">Platform Revenue</div>
+        <div class="stat-value" id="stat-platform-revenue">--</div>
+      </div>
+    </div>
+
+    <!-- User Moderation Table -->
+    <div class="admin-section">
+      <h2>User Management & Moderation</h2>
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-tbody">
+            <tr><td colspan="6" style="text-align: center; color: #9ca3af;">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Audit Logs -->
+    <div class="admin-section">
+      <h2>Platform Audit Logs</h2>
+      <div style="overflow-x: auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>User ID</th>
+              <th>Action</th>
+              <th>IP Address</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="admin-logs-tbody">
+            <tr><td colspan="5" style="text-align: center; color: #9ca3af;">Loading audit logs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/admin-dashboard.js"></script>
+</body>
+</html>

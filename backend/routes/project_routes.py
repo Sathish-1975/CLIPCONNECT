@@ -76,3 +76,68 @@ def delete_project(current_user, project_id):
 def upload_sample(current_user):
     """POST /api/projects/upload-sample — Upload reference file."""
     return project_ctrl.upload_sample_file(current_user)
+
+
+import controllers.saved_project_controller as saved_project_ctrl
+
+
+@project_bp.route('/saved', methods=['GET'])
+@token_required
+def get_saved_projects(current_user):
+    """GET /api/projects/saved — List saved projects for editor."""
+    return saved_project_ctrl.get_saved_projects(current_user)
+
+
+@project_bp.route('/<int:project_id>/save', methods=['POST'])
+@token_required
+def save_project(current_user, project_id):
+    """POST /api/projects/<id>/save — Save project."""
+    return saved_project_ctrl.save_project(current_user, project_id)
+
+
+@project_bp.route('/<int:project_id>/save', methods=['DELETE'])
+@token_required
+def unsave_project(current_user, project_id):
+    """DELETE /api/projects/<id>/save — Remove saved project."""
+    return saved_project_ctrl.unsave_project(current_user, project_id)
+
+
+@project_bp.route('/<int:project_id>/hire', methods=['POST'])
+@token_required
+def hire_editor(current_user, project_id):
+    """POST /api/projects/<id>/hire — Hire editor for project."""
+    return project_ctrl.hire_editor(current_user, project_id)
+
+
+@project_bp.route('/<int:project_id>/apply', methods=['POST'])
+@token_required
+def apply_to_project(current_user, project_id):
+    """POST /api/projects/<id>/apply — Editor applies to project."""
+    return project_ctrl.apply_to_project(current_user, project_id)
+
+
+import controllers.revision_controller as revision_ctrl
+
+
+@project_bp.route('/<int:project_id>/revisions', methods=['POST'])
+@token_required
+def request_revision(current_user, project_id):
+    """POST /api/projects/<id>/revisions — Submit a revision request."""
+    return revision_ctrl.request_revision(current_user, project_id)
+
+
+@project_bp.route('/<int:project_id>/revisions', methods=['GET'])
+@token_required
+def get_project_revisions(current_user, project_id):
+    """GET /api/projects/<id>/revisions — List revision history."""
+    return revision_ctrl.get_project_revisions(current_user, project_id)
+
+
+@project_bp.route('/<int:project_id>/revisions/<int:revision_id>', methods=['PUT'])
+@token_required
+def update_revision(current_user, project_id, revision_id):
+    """PUT /api/projects/<id>/revisions/<rev_id> — Update revision / upload updated work."""
+    return revision_ctrl.update_revision(current_user, project_id, revision_id)
+
+
+

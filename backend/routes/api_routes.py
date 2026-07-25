@@ -18,13 +18,32 @@ Protected (JWT required):
     POST   /api/editor/profile     → create editor profile
     PUT    /api/editor/profile     → update editor profile
     DELETE /api/editor/profile     → delete editor profile
+
+    POST   /api/hire               → submit hire request
+    PUT    /api/hire/accept        → accept hire invitation
+    PUT    /api/hire/reject        → reject hire invitation
+
+    POST   /api/reviews            → create a review
+    GET    /api/reviews/<id>       → get reviews for an editor
+
+    POST   /api/favorites          → add favorite editor
+    GET    /api/favorites           → list favorites
+    DELETE /api/favorites/<id>     → remove favorite editor
+
+    GET    /api/notifications      → (handled by notification_bp)
+    PUT    /api/notifications/read → mark all notifications read
+
+    POST   /api/uploads            → general file upload
 ============================================================
 """
 
-from flask import Blueprint
+from flask import Blueprint, request
 from middleware.auth_middleware import token_required, editor_required
 import controllers.user_controller as user_ctrl
 import controllers.search_controller as search_ctrl
+import controllers.hire_controller as hire_ctrl
+import controllers.review_controller as review_ctrl
+import controllers.client_controller as client_ctrl
 
 api_bp = Blueprint('api', __name__)
 
@@ -143,3 +162,146 @@ def delete_editor_profile(current_user):
             message=f"Failed to delete profile: {str(e)}",
             status_code=500
         )
+
+
+# ============================================================
+# Hire Endpoints
+# ============================================================
+
+@api_bp.route('/hire', methods=['POST'])
+@token_required
+def submit_hire(current_user):
+    """POST /api/hire — Client sends hire invitation to editor."""
+    return hire_ctrl.submit_hire_request(current_user)
+
+
+@api_bp.route('/hire/accept', methods=['PUT'])
+@token_required
+def accept_hire(current_user):
+    """PUT /api/hire/accept — Editor accepts a hire invitation."""
+    return hire_ctrl.accept_hire(current_user)
+
+
+@api_bp.route('/hire/reject', methods=['PUT'])
+@token_required
+def reject_hire(current_user):
+    """PUT /api/hire/reject — Editor rejects a hire invitation."""
+    return hire_ctrl.reject_hire(current_user)
+
+
+# ============================================================
+# Review Endpoints
+# ============================================================
+
+@api_bp.route('/reviews', methods=['POST'])
+@token_required
+def create_review(current_user):
+    """POST /api/reviews — Client submits a review for an editor."""
+    return review_ctrl.create_review(current_user)
+
+
+@api_bp.route('/reviews/<int:editor_id>', methods=['GET'])
+def get_editor_reviews(editor_id):
+    """GET /api/reviews/{editor_id} — Get all reviews for an editor."""
+    return review_ctrl.get_editor_reviews(editor_id)
+
+
+# ============================================================
+# Favorites Endpoints (simplified aliases)
+# ============================================================
+
+@api_bp.route('/favorites', methods=['GET'])
+@token_required
+def list_favorites(current_user):
+    """GET /api/favorites — List favorite editors."""
+    return client_ctrl.get_favorites(current_user)
+
+
+@api_bp.route('/favorites', methods=['POST'])
+@token_required
+def add_favorite(current_user):
+    """POST /api/favorites — Add editor to favorites. Body: { editor_id }."""
+    data = request.get_json(silent=True) or {}
+    editor_id = data.get('editor_id')
+    if not editor_id:
+        from utils.response_helper import error_response
+        return error_response(message="editor_id is required.", status_code=422)
+    return client_ctrl.add_favorite(current_user, int(editor_id))
+
+
+@api_bp.route('/favorites/<int:editor_id>', methods=['DELETE'])
+@token_required
+def remove_favorite(current_user, editor_id):
+    """DELETE /api/favorites/{editor_id} — Remove editor from favorites."""
+    return client_ctrl.remove_favorite(current_user, editor_id)
+
+
+# ============================================================
+# Notifications Alias
+# ============================================================
+
+@api_bp.route('/notifications/read', methods=['PUT'])
+@token_required
+def mark_notifications_read(current_user):
+    """PUT /api/notifications/read — Mark all notifications as read."""
+    import controllers.notification_controller as notif_ctrl
+    return notif_ctrl.mark_all_read(current_user)
+
+
+# ============================================================
+# General Uploads Endpoint
+# ============================================================
+
+@api_bp.route('/uploads', methods=['POST'])
+@token_required
+def general_upload(current_user):
+    """
+    POST /api/uploads — Upload a file.
+    Form data:
+      - file: the file to upload (required)
+      - folder: destination folder (optional, default: 'general')
+                allowed: avatars, banners, resumes, portfolio/images, project_samples, general
+    """
+    from utils.upload_helper import save_upload, get_upload_url, UPLOAD_CONFIG, UPLOAD_BASE
+    from utils.response_helper import success_response, error_response
+    import os
+
+    file = request.files.get('file')
+    if not file:
+        return error_response(message="No file uploaded. Send a 'file' field.", status_code=400)
+
+    folder = (request.form.get('folder') or 'general').strip().lower()
+
+    # Allow 'general' and 'project_samples' as extra folders
+    allowed_extras = {'general', 'project_samples'}
+    if folder not in UPLOAD_CONFIG and folder not in allowed_extras:
+        valid_folders = list(UPLOAD_CONFIG.keys()) + list(allowed_extras)
+        return error_response(
+            message=f"Invalid folder. Must be one of: {', '.join(valid_folders)}",
+            status_code=422
+        )
+
+    # For extra folders, configure on-the-fly
+    if folder in allowed_extras and folder not in UPLOAD_CONFIG:
+        UPLOAD_CONFIG[folder] = {
+            'extensions': {'jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'doc', 'docx', 'mp4', 'mov', 'zip'},
+            'max_mb': 50,
+            'path': os.path.join(UPLOAD_BASE, folder),
+        }
+
+    try:
+        filename = save_upload(file, folder)
+        url = get_upload_url(filename, folder)
+        return success_response(
+            data={
+                'filename': filename,
+                'url': url,
+                'folder': folder,
+            },
+            message="File uploaded successfully.",
+            status_code=201
+        )
+    except ValueError as ve:
+        return error_response(message=str(ve), status_code=422)
+    except Exception as e:
+        return error_response(message=f"Upload failed: {str(e)}", status_code=500)

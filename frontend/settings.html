@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div class="nav-brand__name">Clip<span>Connect</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-outline btn-sm">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="settings-container">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 2rem; color: #fff;">⚙️ Account Settings</h1>
+      <p style="color: #9ca3af; margin-top: 4px;">Manage your security, notification preferences, and payout details</p>
+    </div>
+
+    <!-- Security & Password -->
+    <div class="settings-card">
+      <h2>🔒 Security & Password</h2>
+      <form id="password-form">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="current-password" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="new-password" class="form-control" required minlength="6">
+        </div>
+        <button type="submit" class="btn btn-primary">Update Password</button>
+      </form>
+    </div>
+
+    <!-- Notification Preferences -->
+    <div class="settings-card">
+      <h2>🔔 Notification Preferences</h2>
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="email-notifications" checked>
+        <label for="email-notifications" style="margin-bottom: 0;">Receive email alerts for project hires & messages</label>
+      </div>
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="sms-notifications">
+        <label for="sms-notifications" style="margin-bottom: 0;">Receive SMS notifications for payout releases</label>
+      </div>
+      <button id="save-pref-btn" class="btn btn-primary">Save Preferences</button>
+    </div>
+
+    <!-- Payment & Payout Setup -->
+    <div class="settings-card">
+      <h2>🏦 Payout Details</h2>
+      <div class="form-group">
+        <label>UPI ID or Bank Account Details</label>
+        <input type="text" id="payout-details" class="form-control" placeholder="e.g. user@okhdfcbank or Bank A/C info">
+      </div>
+      <button id="save-payout-btn" class="btn btn-primary">Save Payout Info</button>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

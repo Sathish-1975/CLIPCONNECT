@@ -158,12 +158,14 @@ function updateNavForAuthState() {
         // Show user info + logout
         const initials = getInitials(user.full_name);
         const roleLabel = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        const isAdmin = user.role === 'admin';
 
         navActions.innerHTML = `
             <div class="navbar-user-info" style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:13px;color:var(--text-secondary);">
-                    Hi, <strong style="color:var(--text-primary)">${user.full_name.split(' ')[0]}</strong>
-                </span>
+                <a href="chat.html" class="btn btn-ghost btn-sm" title="Messages">💬 Messages</a>
+                <a href="earnings.html" class="btn btn-ghost btn-sm" title="Earnings">💸 Earnings</a>
+                <a href="settings.html" class="btn btn-ghost btn-sm" title="Settings">⚙️ Settings</a>
+                ${isAdmin ? '<a href="admin-dashboard.html" class="btn btn-primary btn-sm" style="background:#ef4444;" title="Admin">🛡️ Admin</a>' : ''}
                 <div class="navbar-avatar-placeholder" title="${user.full_name} (${roleLabel})">
                     ${initials}
                 </div>

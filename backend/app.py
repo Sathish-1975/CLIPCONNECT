@@ -35,7 +35,7 @@ Available Endpoints (Week 1):
 
 import os
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -67,10 +67,8 @@ def create_app(config_class=None):
         Flask: Configured Flask application instance
     """
 
-    # --------------------------------------------------------
-    # Step 1: Create Flask App
-    # --------------------------------------------------------
-    app = Flask(__name__)
+    frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'frontend'))
+    app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
 
     # --------------------------------------------------------
     # Step 2: Load Configuration
@@ -109,21 +107,25 @@ def create_app(config_class=None):
     app.logger.info("[OK]    SQLAlchemy initialized")
 
     # Initialize CORS (Cross-Origin Resource Sharing)
-    # Allows frontend (different port) to call our backend API
-    cors_origins = app.config.get('CORS_ORIGINS', ['*'])
     CORS(
         app,
         resources={
             r"/api/*": {
-                "origins": cors_origins,
+                "origins": "*",
                 "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
                 "expose_headers": ["Content-Range", "X-Total-Count"]
             }
-        },
-        supports_credentials=True
+        }
     )
-    app.logger.info(f"[OK]    CORS configured for origins: {cors_origins}")
+    app.logger.info("[OK]    CORS configured for all origins (*)")
+
+    # Initialize Flask-SocketIO
+    try:
+        from utils.socket_events import init_socketio
+        init_socketio(app)
+    except Exception as e:
+        app.logger.warning(f"[WARN] SocketIO initialization skipped/failed: {e}")
 
     # --------------------------------------------------------
     # Step 5: Register Route Blueprints
@@ -173,22 +175,16 @@ def register_root_routes(app):
 
     @app.route('/', methods=['GET'])
     def index():
-        """
-        GET /
-        API root — returns project info.
-        """
-        return jsonify({
-            "success": True,
-            "app": app.config.get('APP_NAME', 'ClipConnect'),
-            "version": app.config.get('APP_VERSION', '1.0.0'),
-            "description": "ClipConnect API - Freelance Video Editor Marketplace",
-            "status": "running",
-            "endpoints": {
-                "auth": "/api/auth",
-                "health": "/api/health"
-            },
-            "docs": "API documentation coming soon"
-        })
+        return send_from_directory(app.static_folder, 'index.html')
+
+    @app.route('/<path:path>', methods=['GET'])
+    def serve_frontend_static(path):
+        if path.startswith('api/'):
+            return jsonify({"success": False, "message": "API route not found", "status_code": 404}), 404
+        full_path = os.path.join(app.static_folder, path)
+        if os.path.exists(full_path) and os.path.isfile(full_path):
+            return send_from_directory(app.static_folder, path)
+        return send_from_directory(app.static_folder, 'index.html')
 
     @app.route('/api/health', methods=['GET'])
     def health_check():
@@ -315,8 +311,8 @@ if __name__ == '__main__':
     print(f"  Debug mode: {debug}")
     print("="*60 + "\n")
 
-    app.run(
-        host='0.0.0.0',
-        port=port,
-        debug=debug
-    )
+    try:
+        from utils.socket_events import socketio
+        socketio.run(app, host='0.0.0.0', port=port, debug=debug, allow_unsafe_werkzeug=True)
+    except Exception:
+        app.run(host='0.0.0.0', port=port, debug=debug)

@@ -33,7 +33,7 @@
  * Change this when deploying to production.
  * In production: 'https://api.clipconnect.com'
  */
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = window.location.origin.includes(':5001') ? '/api' : 'http://localhost:5001/api';
 
 /**
  * Default request timeout in milliseconds.
@@ -47,37 +47,32 @@ const REQUEST_TIMEOUT_MS = 15000;  // 15 seconds
 // ============================================================
 
 const TokenManager = {
-    /**
-     * Key used to store the JWT token in localStorage.
-     * Consistent key prevents typos elsewhere in the codebase.
-     */
     TOKEN_KEY: 'clipconnect_token',
     USER_KEY: 'clipconnect_user',
 
-    /**
-     * Save token and user data to localStorage after login.
-     * @param {string} token - JWT token string
-     * @param {Object} user - User object from API
-     */
     save(token, user) {
-        localStorage.setItem(this.TOKEN_KEY, token);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+        localStorage.setItem('token', token);
+        localStorage.setItem('clipconnect_token', token);
+        localStorage.setItem('cc_token', token);
+        localStorage.setItem('jwt_token', token);
+
+        const userStr = typeof user === 'string' ? user : JSON.stringify(user);
+        localStorage.setItem('user', userStr);
+        localStorage.setItem('clipconnect_user', userStr);
+        localStorage.setItem('cc_user', userStr);
     },
 
-    /**
-     * Retrieve the stored JWT token.
-     * @returns {string|null} JWT token or null if not logged in
-     */
     getToken() {
-        return localStorage.getItem(this.TOKEN_KEY);
+        return localStorage.getItem('token') ||
+               localStorage.getItem('clipconnect_token') ||
+               localStorage.getItem('cc_token') ||
+               localStorage.getItem('jwt_token');
     },
 
-    /**
-     * Retrieve the stored user object.
-     * @returns {Object|null} Parsed user object or null
-     */
     getUser() {
-        const raw = localStorage.getItem(this.USER_KEY);
+        const raw = localStorage.getItem('user') ||
+                    localStorage.getItem('clipconnect_user') ||
+                    localStorage.getItem('cc_user');
         try {
             return raw ? JSON.parse(raw) : null;
         } catch {
@@ -85,21 +80,13 @@ const TokenManager = {
         }
     },
 
-    /**
-     * Check if a user is currently logged in (has a valid token stored).
-     * Note: This does NOT verify the token's expiry — use /api/auth/me for that.
-     * @returns {boolean}
-     */
     isLoggedIn() {
         return !!this.getToken();
     },
 
-    /**
-     * Clear all auth data from localStorage (logout).
-     */
     clear() {
-        localStorage.removeItem(this.TOKEN_KEY);
-        localStorage.removeItem(this.USER_KEY);
+        ['token', 'clipconnect_token', 'cc_token', 'jwt_token'].forEach(k => localStorage.removeItem(k));
+        ['user', 'clipconnect_user', 'cc_user'].forEach(k => localStorage.removeItem(k));
     }
 };
 
@@ -293,6 +280,25 @@ const ApiService = {
 // EXPORT
 // ============================================================
 
+const API = {
+    async get(endpoint) {
+        return httpRequest(endpoint, { method: 'GET' });
+    },
+    async post(endpoint, body) {
+        return httpRequest(endpoint, { method: 'POST', body });
+    },
+    async put(endpoint, body) {
+        return httpRequest(endpoint, { method: 'PUT', body });
+    },
+    async patch(endpoint, body) {
+        return httpRequest(endpoint, { method: 'PATCH', body });
+    },
+    async delete(endpoint) {
+        return httpRequest(endpoint, { method: 'DELETE' });
+    }
+};
+
 // Export as globals for use in HTML files without a module bundler
 window.ApiService = ApiService;
 window.TokenManager = TokenManager;
+window.API = API;

@@ -66,6 +66,7 @@ function initSidebar() {
     // Lazy-load
     if (id === 'requests')  renderRequests();
     if (id === 'projects')  renderProjects();
+    if (id === 'saved')     loadSavedProjects();
     if (id === 'earnings')  animateEarningsChart();
     if (id === 'reviews')   renderReviews();
     if (id === 'analytics') animateAnalytics();
@@ -492,5 +493,71 @@ async function init() {
 
   await loadDashboard();
 }
+
+/* ── Saved Projects ─────────────────────────────────────── */
+async function loadSavedProjects() {
+  const tbody = document.getElementById('saved-tbody');
+  const empty = document.getElementById('saved-empty');
+  if (!tbody) return;
+
+  try {
+    const token = localStorage.getItem('cc_token') || localStorage.getItem('jwt_token') || localStorage.getItem('token');
+    const res = await fetch(`${API}/projects/saved`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const result = await res.json();
+
+    if (!res.ok || !result.success || !result.data.projects || result.data.projects.length === 0) {
+      tbody.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+
+    if (empty) empty.style.display = 'none';
+    const projects = result.data.projects;
+
+    tbody.innerHTML = projects.map(p => `
+      <tr>
+        <td>
+          <a href="project-details.html?id=${p.id}" style="font-weight:600;color:var(--text-heading,#fff)">${esc(p.title || 'Untitled')}</a>
+        </td>
+        <td>${esc(p.category || 'General')}</td>
+        <td>${p.budget ? '₹' + Number(p.budget).toLocaleString('en-IN') : 'Negotiable'}</td>
+        <td>${fmtDate(p.saved_at)}</td>
+        <td>
+          <a href="project-details.html?id=${p.id}" class="btn btn-secondary btn-sm" style="text-decoration:none;margin-right:6px">View</a>
+          <button class="btn btn-danger btn-sm" onclick="removeSavedProject(${p.id})">Remove</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch (err) {
+    console.error('Error loading saved projects:', err);
+    if (empty) empty.style.display = 'block';
+  }
+}
+
+async function removeSavedProject(projectId) {
+  if (!confirm('Remove this project from your saved list?')) return;
+
+  try {
+    const token = localStorage.getItem('cc_token') || localStorage.getItem('jwt_token') || localStorage.getItem('token');
+    const res = await fetch(`${API}/projects/${projectId}/save`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const result = await res.json();
+
+    if (res.ok && result.success) {
+      toast('Project removed from saved list.', 'success');
+      loadSavedProjects();
+    } else {
+      toast(result.message || 'Failed to remove saved project.', 'error');
+    }
+  } catch (err) {
+    console.error('Error removing saved project:', err);
+    toast('Server error removing saved project.', 'error');
+  }
+}
+window.removeSavedProject = removeSavedProject;
 
 document.addEventListener('DOMContentLoaded', init);

@@ -59,7 +59,9 @@ document.addEventListener('DOMContentLoaded', function () {
  * Prevents logged-in users from seeing the login/register pages.
  */
 function redirectIfLoggedIn() {
-    if (TokenManager.isLoggedIn()) {
+    const path = window.location.pathname.toLowerCase();
+    const isAuthPage = path.endsWith('login.html') || path.endsWith('register.html');
+    if (isAuthPage && typeof TokenManager !== 'undefined' && TokenManager.isLoggedIn()) {
         window.location.href = 'index.html';
     }
 }

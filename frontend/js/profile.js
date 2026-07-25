@@ -15,8 +15,8 @@
 
 'use strict';
 
-const API     = 'http://localhost:5001/api';
-const UPLOADS = 'http://localhost:5001/uploads';
+const API     = window.location.origin.includes(':5001') ? '/api' : 'http://localhost:5001/api';
+const UPLOADS = window.location.origin.includes(':5001') ? '/uploads' : 'http://localhost:5001/uploads';
 
 /* ─────────────────────────────────────────────
    Utility helpers
@@ -360,13 +360,13 @@ function openLightbox(src) {
 function initHireButton(userId) {
   const btn = document.getElementById('hire-btn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    const token = localStorage.getItem('cc_token');
-    if (!token) {
-      window.location.href = `login.html?redirect=editor-profile.html?id=${userId}`;
+  btn.addEventListener('click', (e) => {
+    e?.preventDefault();
+    const editorName = document.getElementById('profile-name')?.textContent || 'Editor';
+    if (typeof openHireModal === 'function') {
+      openHireModal(userId, editorName);
     } else {
-      // Week 3: navigate to order/gig page
-      toast('Hiring flow coming in Week 3!', 'info');
+      toast('Hire modal loading...', 'info');
     }
   });
 }
@@ -374,13 +374,17 @@ function initHireButton(userId) {
 function initChatButton(userId) {
   const btn = document.getElementById('chat-btn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    const token = localStorage.getItem('cc_token');
+  btn.addEventListener('click', (e) => {
+    e?.preventDefault();
+    const token = typeof TokenManager !== 'undefined' ? TokenManager.getToken() :
+                  (localStorage.getItem('token') || localStorage.getItem('cc_token') || localStorage.getItem('clipconnect_token'));
     if (!token) {
-      window.location.href = `login.html?redirect=editor-profile.html?id=${userId}`;
+      toast('Please log in to chat with this editor.', 'info');
+      setTimeout(() => {
+        window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      }, 1000);
     } else {
-      // Week 3: navigate to chat page
-      toast('Chat feature coming in Week 3!', 'info');
+      window.location.href = `chat.html?user=${userId}`;
     }
   });
 }
