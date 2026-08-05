@@ -19,8 +19,8 @@
 /* ─────────────────────────────────────────────
    Config & Globals
 ───────────────────────────────────────────── */
-const API = 'http://localhost:5001/api';
-const UPLOADS = 'http://localhost:5001/uploads';
+const API = 'http://localhost:5000/api';
+const UPLOADS = 'http://localhost:5000/uploads';
 
 let currentProfile = null;   // Cached profile from server
 let pendingChanges = {};     // Accumulated field changes (flushed on Save)

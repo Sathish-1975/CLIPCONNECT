@@ -70,7 +70,7 @@ class Config:
     ).split(',')
 
     # --- File Upload Settings (for profile images) ---
-    MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5MB max upload
+    MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500MB max upload to support project submissions
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
     UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 

@@ -11,6 +11,10 @@ async function openHireModal(editorId, editorName) {
   const user  = typeof TokenManager !== 'undefined' ? TokenManager.getUser() :
                 (() => { try { return JSON.parse(localStorage.getItem('cc_user') || localStorage.getItem('user') || localStorage.getItem('clipconnect_user')); } catch { return null; } })();
 
+  // Remove existing modal if any
+  const existing = document.getElementById('hire-modal-backdrop');
+  if (existing) existing.remove();
+
   // Create modal backdrop container
   const backdrop = document.createElement('div');
   backdrop.id = 'hire-modal-backdrop';
@@ -47,20 +51,6 @@ async function openHireModal(editorId, editorName) {
     return;
   }
 
-  // Remove existing modal if any
-  const existing = document.getElementById('hire-modal-backdrop');
-  if (existing) existing.remove();
-
-  // Create modal container
-  const backdrop = document.createElement('div');
-  backdrop.id = 'hire-modal-backdrop';
-  backdrop.style.cssText = `
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(10, 10, 20, 0.85); backdrop-filter: blur(12px);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10000; padding: 20px; animation: fadeIn 0.25s ease-out;
-    font-family: 'Inter', sans-serif;
-  `;
 
   backdrop.innerHTML = `
     <div style="
@@ -95,8 +85,10 @@ async function openHireModal(editorId, editorName) {
 
   // Fetch client's projects
   const modalBody = backdrop.querySelector('#hire-modal-body');
+  const API_BASE = window.location.origin.includes(':5000') ? '' : 'http://localhost:5000';
+  
   try {
-    const res = await fetch('/api/projects/my', {
+    const res = await fetch(`${API_BASE}/api/projects/my`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const result = await res.json();
@@ -171,7 +163,7 @@ async function openHireModal(editorId, editorName) {
       submitBtn.textContent = 'Sending Request...';
 
       try {
-        const hireRes = await fetch('/api/hire', {
+        const hireRes = await fetch(`${API_BASE}/api/hire`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

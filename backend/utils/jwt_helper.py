@@ -126,13 +126,14 @@ def extract_token_from_header(request):
     auth_header = request.headers.get('Authorization', '')
 
     if not auth_header:
-        return None
+        # Fallback to query param (e.g. for GET downloads via href)
+        return request.args.get('token')
 
     parts = auth_header.split()
 
     # Must be "Bearer <token>" - exactly 2 parts
     if len(parts) != 2 or parts[0].lower() != 'bearer':
-        return None
+        return request.args.get('token')
 
     return parts[1]
 

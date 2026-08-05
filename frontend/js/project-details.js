@@ -2,7 +2,7 @@
  * project-details.js — Project details page frontend script
  */
 
-const API_BASE = window.location.port === '5001' ? 'http://localhost:5001/api' : 'http://localhost:5001/api';
+const API_BASE = window.location.port === '5000' ? 'http://localhost:5000/api' : 'http://localhost:5000/api';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const urlParams = new URLSearchParams(window.location.search);

@@ -138,6 +138,23 @@ def get_project_revisions(current_user, project_id):
 def update_revision(current_user, project_id, revision_id):
     """PUT /api/projects/<id>/revisions/<rev_id> — Update revision / upload updated work."""
     return revision_ctrl.update_revision(current_user, project_id, revision_id)
+@project_bp.route('/<int:project_id>/editor-progress', methods=['PATCH'])
+@token_required
+def editor_update_progress(current_user, project_id):
+    """PATCH /api/projects/<id>/editor-progress — Editor updates progress."""
+    return project_ctrl.editor_update_progress(current_user, project_id)
 
 
+@project_bp.route('/<int:project_id>/submit', methods=['POST'])
+@token_required
+def editor_submit_project(current_user, project_id):
+    """POST /api/projects/<id>/submit — Editor submits completed project."""
+    return project_ctrl.editor_submit_project(current_user, project_id)
+
+
+@project_bp.route('/<int:project_id>/approve', methods=['POST'])
+@token_required
+def client_approve_project(current_user, project_id):
+    """POST /api/projects/<id>/approve — Client approves submitted project."""
+    return project_ctrl.client_approve_project(current_user, project_id)
 

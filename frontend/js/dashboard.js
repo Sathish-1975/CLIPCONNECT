@@ -18,8 +18,8 @@
 /* ───────────────────────────────────────────
    Config
 ─────────────────────────────────────────── */
-const API     = 'http://localhost:5001/api';
-const UPLOADS = 'http://localhost:5001/uploads';
+const API     = 'http://localhost:5000/api';
+const UPLOADS = 'http://localhost:5000/uploads';
 
 /* ───────────────────────────────────────────
    State
@@ -274,6 +274,7 @@ function renderFavSnippets(editors) {
   }
   el.innerHTML = editors.slice(0, 4).map(e => buildEditorCard(e, true)).join('');
   attachRemoveFavHandlers(el);
+  attachHireHandlers(el);
 }
 
 function renderFavoritesGrid(editors, container) {
@@ -289,6 +290,7 @@ function renderFavoritesGrid(editors, container) {
   }
   container.innerHTML = editors.map(e => buildEditorCard(e, true)).join('');
   attachRemoveFavHandlers(container);
+  attachHireHandlers(container);
 }
 
 function renderBrowseGrid(editors, container) {
@@ -298,6 +300,7 @@ function renderBrowseGrid(editors, container) {
   }
   container.innerHTML = editors.map(e => buildEditorCard(e, false)).join('');
   attachAddFavHandlers(container);
+  attachHireHandlers(container);
 }
 
 function buildEditorCard(e, isFav) {
@@ -339,7 +342,7 @@ function buildEditorCard(e, isFav) {
       </div>
       <div class="editor-card__actions">
         <a href="editor-profile.html?id=${e.user_id}" class="btn btn-secondary btn-sm" style="flex:1;justify-content:center">View Profile</a>
-        <button class="btn btn-primary btn-sm" onclick="toast('Hiring flow coming soon!','info')">Hire</button>
+        <button class="btn btn-primary btn-sm btn-hire" data-id="${e.user_id}" data-name="${esc(e.full_name)}">Hire</button>
       </div>
     </div>`;
 }
@@ -350,6 +353,19 @@ function attachRemoveFavHandlers(container) {
       e.stopPropagation();
       const editorId = parseInt(btn.dataset.id);
       await removeFavorite(editorId, btn.closest('.editor-card'));
+    });
+  });
+}
+
+function attachHireHandlers(container) {
+  container.querySelectorAll('.btn-hire').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof openHireModal === 'function') {
+        openHireModal(btn.dataset.id, btn.dataset.name);
+      } else {
+        toast('Hire modal not loaded yet.', 'error');
+      }
     });
   });
 }
@@ -651,12 +667,178 @@ function initBrowseSearch() {
 
 function renderProjectsSection() {
   const el = document.getElementById('projects-table-body');
-  if (!el) return;
-  // No orders yet — show beautiful empty state
-  el.innerHTML = '';
   const wrap = document.getElementById('projects-empty');
-  if (wrap) wrap.style.display = 'block';
+  if (!el || !wrap) return;
+
+  const projects = dashData?.recent_projects || [];
+  if (!projects.length) {
+    el.innerHTML = '';
+    wrap.style.display = 'block';
+    return;
+  }
+
+  wrap.style.display = 'none';
+  el.innerHTML = projects.map((p, i) => {
+    let statCls = 'status-badge--pending';
+    if (p.status.includes('Accepted') || p.status === 'Completed') statCls = 'status-badge--completed';
+    if (p.status.includes('Declined') || p.status === 'Cancelled') statCls = 'status-badge--cancelled';
+
+    return `
+      <tr>
+        <td>#${String(i+1).padStart(3, '0')}</td>
+        <td style="font-weight:600">${esc(p.title)}</td>
+        <td>${esc(p.editor_name)}</td>
+        <td><span class="status-badge ${statCls}"><span class="status-badge__dot"></span>${esc(p.status)}</span></td>
+        <td>—</td>
+        <td>${p.budget ? '₹'+p.budget.toLocaleString('en-IN') : '—'}</td>
+        <td><button class="btn btn-secondary btn-sm" onclick="openClientProjectModal(${p.id})">View</button></td>
+      </tr>
+    `;
+  }).join('');
 }
+
+/* ── Client Project Modal ─────────────────────────────────────── */
+let currentClientProjectId = null;
+
+async function openClientProjectModal(projectId) {
+  currentClientProjectId = projectId;
+  const modal = document.getElementById('client-project-modal');
+  if (!modal) return;
+  
+  let project = dashData?.recent_projects?.find(p => p.id === projectId);
+  if (!project) {
+    try {
+      const res = await fetch(`${API}/projects/${projectId}`, { headers: authH() });
+      const data = await res.json();
+      if (data.success) {
+        project = data.data.project;
+      } else {
+        toast('Failed to load project details.', 'error');
+        return;
+      }
+    } catch (e) {
+      toast('Network error fetching project.', 'error');
+      return;
+    }
+  }
+
+  setTxt('cpm-title', project.title);
+  setTxt('cpm-editor', project.editor_name || 'Not assigned');
+  setTxt('cpm-budget', fmtINR(project.price || project.budget_max || project.budget_min || 0));
+  setTxt('cpm-status', project.status.replace('_', ' ').toUpperCase());
+
+  const filesContainer = document.getElementById('cpm-files');
+  if (project.project_files && project.project_files.length > 0) {
+    filesContainer.innerHTML = project.project_files.map(f => `<a href="http://localhost:5000${f.url}" target="_blank" style="color:#0ea5e9;">${esc(f.filename)}</a>`).join('<br>');
+  } else {
+    filesContainer.innerHTML = 'No files attached.';
+  }
+
+  const reviewSection = document.getElementById('cpm-review-section');
+  const invoiceSection = document.getElementById('cpm-invoice-section');
+  
+  if (project.status === 'under_review') {
+    reviewSection.style.display = 'block';
+  } else {
+    reviewSection.style.display = 'none';
+  }
+
+  // Create an invoice section if it doesn't exist yet, or just display it
+  if (!invoiceSection) {
+    const invDiv = document.createElement('div');
+    invDiv.id = 'cpm-invoice-section';
+    invDiv.className = 'admin-section';
+    invDiv.style.marginTop = '20px';
+    invDiv.innerHTML = `
+      <h3>Payment & Invoice</h3>
+      <p style="color: #10b981; font-weight: bold; margin-bottom: 10px;">✔ Payment Released</p>
+      <a href="#" id="cpm-download-invoice" class="btn btn-outline" target="_blank">Download Invoice</a>
+    `;
+    const contentDiv = document.querySelector('#client-project-modal .modal-content') || document.querySelector('.admin-modal-content');
+    if (contentDiv) {
+        contentDiv.appendChild(invDiv);
+    }
+  }
+
+  const existingInvoiceSection = document.getElementById('cpm-invoice-section');
+  if (project.status === 'completed') {
+    existingInvoiceSection.style.display = 'block';
+    document.getElementById('cpm-download-invoice').href = `${API}/invoices/${project.id}/download?token=${localStorage.getItem('token') || localStorage.getItem('cc_token') || localStorage.getItem('jwt_token')}`;
+  } else if (existingInvoiceSection) {
+    existingInvoiceSection.style.display = 'none';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeClientProjectModal() {
+  const modal = document.getElementById('client-project-modal');
+  if (modal) modal.style.display = 'none';
+  currentClientProjectId = null;
+  document.getElementById('cpm-review-notes').value = '';
+}
+window.closeClientProjectModal = closeClientProjectModal;
+
+document.getElementById('cpm-approve-btn')?.addEventListener('click', async () => {
+  if (!currentClientProjectId) return;
+  
+  if (!confirm('Are you sure you want to approve this project? This will finalize the payment.')) return;
+  
+  const btn = document.getElementById('cpm-approve-btn');
+  btn.textContent = 'Approving...'; btn.disabled = true;
+  
+  try {
+    const res = await fetch(`${API}/projects/${currentClientProjectId}/approve`, {
+      method: 'POST',
+      headers: authH()
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('Project approved successfully! 🎉', 'success');
+      closeClientProjectModal();
+      loadDashboard();
+    } else {
+      toast(data.message || 'Failed to approve project.', 'error');
+    }
+  } catch (e) {
+    toast('Network error.', 'error');
+  } finally {
+    btn.textContent = 'Approve Project'; btn.disabled = false;
+  }
+});
+
+document.getElementById('cpm-revision-btn')?.addEventListener('click', async () => {
+  if (!currentClientProjectId) return;
+  
+  const notes = document.getElementById('cpm-review-notes').value.trim();
+  if (!notes) {
+    toast('Please provide revision notes.', 'error');
+    return;
+  }
+  
+  const btn = document.getElementById('cpm-revision-btn');
+  btn.textContent = 'Requesting...'; btn.disabled = true;
+  
+  try {
+    const res = await fetch(`${API}/projects/${currentClientProjectId}/revisions`, {
+      method: 'POST',
+      headers: authH(),
+      body: JSON.stringify({ comments: notes, title: 'Revision Request' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('Revision requested successfully.', 'success');
+      closeClientProjectModal();
+      loadDashboard();
+    } else {
+      toast(data.message || 'Failed to request revision.', 'error');
+    }
+  } catch (e) {
+    toast('Network error.', 'error');
+  } finally {
+    btn.textContent = 'Request Revision'; btn.disabled = false;
+  }
+});
 
 /* ── Notification badge ─────────────────────────────────────── */
 
@@ -685,6 +867,7 @@ function setVal(id, val) { const e = document.getElementById(id); if (e) e.value
 function getVal(id)      { return document.getElementById(id)?.value?.trim() || ''; }
 function initials(name)  { return (name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2); }
 function esc(s)          { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function fmtINR(val)     { if (!val) return '₹0'; return '₹'+Number(val).toLocaleString('en-IN'); }
 
 function fmtDate(iso) {
   if (!iso) return 'recently';
@@ -748,6 +931,12 @@ async function init() {
 
   // Render projects tab
   renderProjectsSection();
+
+  // 15-second polling for real-time dashboard updates
+  setInterval(async () => {
+    await loadDashboard();
+    await loadNotifications(false);
+  }, 15000);
 }
 
 document.addEventListener('DOMContentLoaded', init);

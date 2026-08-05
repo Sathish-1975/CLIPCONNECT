@@ -15,8 +15,8 @@
 
 'use strict';
 
-const API     = window.location.origin.includes(':5001') ? '/api' : 'http://localhost:5001/api';
-const UPLOADS = window.location.origin.includes(':5001') ? '/uploads' : 'http://localhost:5001/uploads';
+const API     = window.location.origin.includes(':5000') ? '/api' : 'http://localhost:5000/api';
+const UPLOADS = window.location.origin.includes(':5000') ? '/uploads' : 'http://localhost:5000/uploads';
 
 /* ─────────────────────────────────────────────
    Utility helpers
@@ -358,34 +358,38 @@ function openLightbox(src) {
    Hire / Contact button
 ───────────────────────────────────────────── */
 function initHireButton(userId) {
-  const btn = document.getElementById('hire-btn');
-  if (!btn) return;
-  btn.addEventListener('click', (e) => {
-    e?.preventDefault();
-    const editorName = document.getElementById('profile-name')?.textContent || 'Editor';
-    if (typeof openHireModal === 'function') {
-      openHireModal(userId, editorName);
-    } else {
-      toast('Hire modal loading...', 'info');
-    }
+  const btns = [document.getElementById('hire-btn-top'), document.getElementById('hire-btn-card'), document.getElementById('hire-btn')];
+  btns.forEach(btn => {
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e?.preventDefault();
+      const editorName = document.getElementById('profile-name')?.textContent || 'Editor';
+      if (typeof openHireModal === 'function') {
+        openHireModal(userId, editorName);
+      } else {
+        toast('Hire modal loading...', 'info');
+      }
+    });
   });
 }
 
 function initChatButton(userId) {
-  const btn = document.getElementById('chat-btn');
-  if (!btn) return;
-  btn.addEventListener('click', (e) => {
-    e?.preventDefault();
-    const token = typeof TokenManager !== 'undefined' ? TokenManager.getToken() :
-                  (localStorage.getItem('token') || localStorage.getItem('cc_token') || localStorage.getItem('clipconnect_token'));
-    if (!token) {
-      toast('Please log in to chat with this editor.', 'info');
-      setTimeout(() => {
-        window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
-      }, 1000);
-    } else {
-      window.location.href = `chat.html?user=${userId}`;
-    }
+  const btns = [document.getElementById('chat-btn-top'), document.getElementById('chat-btn')];
+  btns.forEach(btn => {
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e?.preventDefault();
+      const token = typeof TokenManager !== 'undefined' ? TokenManager.getToken() :
+                    (localStorage.getItem('token') || localStorage.getItem('cc_token') || localStorage.getItem('clipconnect_token'));
+      if (!token) {
+        toast('Please log in to chat with this editor.', 'info');
+        setTimeout(() => {
+          window.location.href = `login.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+        }, 1000);
+      } else {
+        window.location.href = `chat.html?user=${userId}`;
+      }
+    });
   });
 }
 

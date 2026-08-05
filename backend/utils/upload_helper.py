@@ -60,6 +60,11 @@ UPLOAD_CONFIG = {
         'max_mb': 10,
         'path': os.path.join(UPLOAD_BASE, 'portfolio', 'images'),
     },
+    'project_submissions': {
+        'extensions': {'jpg', 'jpeg', 'png', 'webp', 'gif', 'pdf', 'mp4', 'zip', 'rar', 'doc', 'docx'},
+        'max_mb': 500, # Large limit for video projects etc.
+        'path': os.path.join(UPLOAD_BASE, 'project_submissions'),
+    },
 }
 
 # URL prefix for serving uploaded files

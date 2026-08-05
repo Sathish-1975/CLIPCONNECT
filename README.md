@@ -439,6 +439,11 @@ Authorization: Bearer <your_jwt_token>
   - Fixed incorrect file helper imports in project submissions.
   - Fixed incorrect client avatar references in `project_model.py` (`profile_photo` instead of `company_logo`).
   - Removed duplicate and obsolete controller files (e.g., `dashboard_controller.py`).
+- **Critical Workflow & UI Fixes:**
+  - **Auth/Login Sync**: Fixed mismatched password hashing algorithms by updating `seed_demo_data.py` to use `bcrypt` directly, ensuring seeded test accounts can successfully log in.
+  - **Frontend API Endpoint**: Updated `frontend/js/api.js` to point `API_BASE_URL` to `http://127.0.0.1:5000/api` to resolve Windows IPv6/IPv4 binding issues.
+  - **Client Dashboard UI**: Added the missing `fmtINR` utility function to `dashboard.js` to fix a silent crash when viewing project details.
+  - **Project Submissions**: Enabled editors to submit completed work by properly configuring the `project_submissions` folder upload limit in `backend/utils/upload_helper.py` to prevent backend 500 errors.
 - File upload (profile images) (In Progress)
 - Search & filter functionality (In Progress)
 

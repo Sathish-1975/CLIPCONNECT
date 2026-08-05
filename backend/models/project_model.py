@@ -137,7 +137,7 @@ class Project(db.Model):
             data['client'] = {
                 'id':         self.client.id,
                 'full_name':  self.client.full_name,
-                'avatar_url': getattr(self.client.client_profile, 'company_logo', None) if hasattr(self.client, 'client_profile') else None
+                'avatar_url': getattr(self.client.client_profile, 'profile_photo', None) if hasattr(self.client, 'client_profile') else None
             }
         if self.hired_editor:
             data['hired_editor'] = {

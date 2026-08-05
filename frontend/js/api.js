@@ -33,7 +33,7 @@
  * Change this when deploying to production.
  * In production: 'https://api.clipconnect.com'
  */
-const API_BASE_URL = window.location.origin.includes(':5001') ? '/api' : 'http://localhost:5001/api';
+const API_BASE_URL = window.location.origin.includes(':5000') ? '/api' : 'http://127.0.0.1:5000/api';
 
 /**
  * Default request timeout in milliseconds.

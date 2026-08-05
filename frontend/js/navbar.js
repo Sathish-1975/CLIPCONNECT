@@ -160,8 +160,13 @@ function updateNavForAuthState() {
         const roleLabel = user.role.charAt(0).toUpperCase() + user.role.slice(1);
         const isAdmin = user.role === 'admin';
 
+        let dashboardLink = 'dashboard.html';
+        if (user.role === 'editor') dashboardLink = 'editor-dashboard.html';
+        else if (user.role === 'admin') dashboardLink = 'admin-dashboard.html';
+
         navActions.innerHTML = `
             <div class="navbar-user-info" style="display:flex;align-items:center;gap:12px;">
+                ${!isAdmin ? `<a href="${dashboardLink}" class="btn btn-primary btn-sm">Dashboard</a>` : ''}
                 <a href="chat.html" class="btn btn-ghost btn-sm" title="Messages">💬 Messages</a>
                 <a href="earnings.html" class="btn btn-ghost btn-sm" title="Earnings">💸 Earnings</a>
                 <a href="settings.html" class="btn btn-ghost btn-sm" title="Settings">⚙️ Settings</a>
@@ -177,14 +182,25 @@ function updateNavForAuthState() {
 
         if (mobileNavActions) {
             mobileNavActions.innerHTML = `
-                <div style="padding:16px;background:var(--glass-bg);border-radius:12px;border:1px solid var(--border-subtle);">
+                <div style="padding:16px;background:var(--glass-bg);border-radius:12px;border:1px solid var(--border-subtle);margin-bottom:16px;">
                     <p style="font-size:13px;color:var(--text-muted);margin-bottom:4px;">Logged in as</p>
                     <p style="font-weight:600;color:var(--text-primary)">${user.full_name}</p>
                     <p style="font-size:12px;color:var(--color-primary-light)">${roleLabel}</p>
                 </div>
+                <a href="${dashboardLink}" class="btn btn-primary w-full" style="margin-bottom:8px;">Dashboard</a>
+                <a href="chat.html" class="btn btn-secondary w-full" style="margin-bottom:8px;">Messages</a>
+                <a href="earnings.html" class="btn btn-secondary w-full" style="margin-bottom:8px;">Earnings</a>
+                <a href="settings.html" class="btn btn-secondary w-full" style="margin-bottom:16px;">Settings</a>
                 <button class="btn btn-secondary w-full" onclick="handleLogout()">Sign Out</button>
             `;
         }
+
+        // Update CTA buttons if on index page
+        const ctaBtns = [document.getElementById('hero-cta-hire'), document.getElementById('cta-hire-btn')];
+        ctaBtns.forEach(btn => { if (btn) btn.href = 'browse-editors.html'; });
+
+        const editorBtns = [document.getElementById('hero-cta-editor'), document.getElementById('cta-editor-btn')];
+        editorBtns.forEach(btn => { if (btn) btn.style.display = 'none'; });
 
     } else {
         // Show login/register buttons

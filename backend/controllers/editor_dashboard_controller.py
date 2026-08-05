@@ -13,6 +13,8 @@ from flask import request, current_app
 from database import db
 from models.user_model import User, UserRole
 from models.editor_profile_model import EditorProfile, AvailabilityStatus
+from models.proposal_model import Proposal
+from models.project_model import Project
 from utils.response_helper import success_response, error_response
 
 
@@ -128,8 +130,36 @@ def get_editor_dashboard(current_user: dict):
         ],
     }
 
-    # ── Recent requests (empty until Week 3) ──
+    # ── Recent requests ──
     recent_requests = []
+    proposals = Proposal.query.filter(
+        Proposal.editor_id == user.id,
+        Proposal.status.in_(['invited', 'pending'])
+    ).order_by(Proposal.created_at.desc()).limit(5).all()
+
+    for p in proposals:
+        if p.project and p.project.client:
+            recent_requests.append({
+                'id': p.id,
+                'title': p.project.title,
+                'client_name': p.project.client.full_name,
+                'category': p.project.category.value if p.project.category else None,
+                'budget': float(p.proposed_price) if p.proposed_price else None,
+                'created_at': p.created_at.isoformat() if p.created_at else None
+            })
+
+    # ── Recent projects ──
+    recent_projects = []
+    projects = Project.query.filter_by(hired_editor_id=user.id).order_by(Project.created_at.desc()).all()
+    for proj in projects:
+        recent_projects.append({
+            'id': proj.id,
+            'title': proj.title,
+            'client_name': proj.client.full_name if proj.client else 'Unknown',
+            'status': proj.status.value if proj.status else 'Unknown',
+            'price': float(proj.budget) if proj.budget else 0.0,
+            'due_date': proj.created_at.isoformat() if proj.created_at else None # Using created_at since due_date may not exist
+        })
 
     # ── Recent reviews (empty until Week 3) ──
     recent_reviews = []
@@ -180,6 +210,7 @@ def get_editor_dashboard(current_user: dict):
             'stats':            stats,
             'analytics':        analytics,
             'recent_requests':  recent_requests,
+            'recent_projects':  recent_projects,
             'recent_reviews':   recent_reviews,
         },
         message='Editor dashboard loaded.'

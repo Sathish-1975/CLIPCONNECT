@@ -199,8 +199,14 @@ async function handleLoginSubmit(e) {
         showMessage('success', `Welcome back, ${response.data.user.full_name}! 🎬`);
 
         // Redirect to home page after 1 second
+        let redirectUrl = 'index.html';
+        const role = response.data.user.role;
+        if (role === 'client') redirectUrl = 'dashboard.html';
+        else if (role === 'editor') redirectUrl = 'editor-dashboard.html';
+        else if (role === 'admin') redirectUrl = 'admin-dashboard.html';
+
         setTimeout(() => {
-            window.location.href = 'index.html';
+            window.location.href = redirectUrl;
         }, 1200);
 
     } catch (error) {

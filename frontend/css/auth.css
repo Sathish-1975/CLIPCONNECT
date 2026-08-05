@@ -324,6 +324,10 @@
   border-color: var(--border-default);
 }
 
+.auth-form .input-wrapper .form-input {
+  padding-left: calc(var(--space-4) * 2 + 18px);
+}
+
 .auth-form .form-input:focus {
   background: rgba(124, 58, 237, 0.06);
 }

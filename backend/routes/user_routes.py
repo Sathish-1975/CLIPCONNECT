@@ -195,25 +195,33 @@ def favorite_remove(current_user, editor_id):
 
 # ── Notifications ───────────────────────────────────────────────
 
+import controllers.notification_controller as notif_ctrl
+
 @user_bp.route('/me/notifications', methods=['GET'])
 @token_required
 def notifications_list(current_user):
     """GET — All notifications (newest first) + unread count."""
-    return client_ctrl.get_notifications(current_user)
+    return notif_ctrl.get_user_notifications(current_user)
 
 
 @user_bp.route('/me/notifications/<notif_id>', methods=['PATCH'])
 @token_required
 def notification_read(current_user, notif_id):
     """PATCH — Mark a single notification as read."""
-    return client_ctrl.mark_notification_read(current_user, notif_id)
+    # notif_ctrl expects an integer id
+    try:
+        n_id = int(notif_id)
+    except ValueError:
+        from utils.response_helper import error_response
+        return error_response('Invalid notification ID', 400)
+    return notif_ctrl.mark_notification_read(current_user, n_id)
 
 
 @user_bp.route('/me/notifications/read-all', methods=['POST'])
 @token_required
 def notifications_read_all(current_user):
     """POST — Mark all notifications as read."""
-    return client_ctrl.mark_all_notifications_read(current_user)
+    return notif_ctrl.mark_all_read(current_user)
 
 
 @user_bp.route('/me/notifications/prefs', methods=['PUT'])

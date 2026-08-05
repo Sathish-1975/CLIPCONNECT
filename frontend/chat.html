@@ -11,8 +11,7 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/navbar.css">
   <link rel="stylesheet" href="css/chat.css">
-  <!-- SocketIO Client Library -->
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <!-- SocketIO Client Library loaded at end of body to prevent render blocking -->
 </head>
 <body>
 
@@ -73,8 +72,9 @@
     </div>
   </div>
 
-  <script src="js/api.js"></script>
-  <script src="js/navbar.js"></script>
-  <script src="js/chat.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="js/api.js?v=2"></script>
+  <script src="js/navbar.js?v=2"></script>
+  <script src="js/chat.js?v=2"></script>
 </body>
 </html>

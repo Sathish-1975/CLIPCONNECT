@@ -25,6 +25,8 @@ from database import db
 from models.user_model import User, UserRole
 from models.client_profile_model import ClientProfile
 from models.editor_profile_model import EditorProfile
+from models.project_model import Project, ProjectStatus
+from models.proposal_model import Proposal
 from utils.response_helper import success_response, error_response
 from utils.upload_helper import save_upload, delete_upload, get_upload_url
 
@@ -80,11 +82,61 @@ def get_client_dashboard(current_user: dict):
     if err:
         return err
 
-    # Project stats (will be real values once orders are built in Week 3)
-    active_projects    = 0
-    completed_projects = 0
-    pending_requests   = 0
-    total_spent        = 0.0
+    # Fetch Real Projects for the client
+    all_projects = Project.query.filter_by(client_id=user.id).order_by(Project.created_at.desc()).all()
+    
+    active_projects = sum(1 for p in all_projects if p.status == ProjectStatus.IN_PROGRESS)
+    completed_projects = sum(1 for p in all_projects if p.status == ProjectStatus.COMPLETED)
+    pending_requests = sum(1 for p in all_projects if p.status == ProjectStatus.WAITING_FOR_EDITOR)
+    total_spent = sum(p.budget for p in all_projects if p.status == ProjectStatus.COMPLETED and p.budget)
+
+    recent_projects = []
+    for p in all_projects[:10]: # Return top 10 recent
+        editor_name = 'Pending'
+        p_status_str = p.status.value.replace('_', ' ').title()
+        
+        # Determine the editor name based on proposals or hired_editor
+        if p.hired_editor_id:
+            hired_user = User.query.get(p.hired_editor_id)
+            if hired_user:
+                editor_name = hired_user.full_name
+        else:
+            # Check proposals to see who it was sent to, or if it was declined
+            prop = Proposal.query.filter_by(project_id=p.id).order_by(Proposal.created_at.desc()).first()
+            if prop:
+                editor = User.query.get(prop.editor_id)
+                editor_name = editor.full_name if editor else 'Unknown'
+                # If the proposal was rejected and project still waiting, it means declined.
+                if prop.status == 'rejected' and p.status == ProjectStatus.WAITING_FOR_EDITOR:
+                    p_status_str = 'Declined'
+                else:
+                    p_status_str = 'Pending Request'
+            else:
+                p_status_str = 'Draft / No Request'
+                
+
+        # Override status string based on actual project status
+        if p.status == ProjectStatus.IN_PROGRESS:
+            p_status_str = 'Accepted (In Progress)'
+        elif p.status == ProjectStatus.COMPLETED:
+            p_status_str = 'Completed'
+        elif p.status == ProjectStatus.CANCELLED:
+            p_status_str = 'Cancelled'
+        elif p.status == ProjectStatus.ACCEPTED:
+            p_status_str = 'Accepted'
+        elif p.status == ProjectStatus.UNDER_REVIEW:
+            p_status_str = 'Under Review'
+        elif p.status == ProjectStatus.REVISION_REQUESTED:
+            p_status_str = 'Revision Requested'
+        
+        recent_projects.append({
+            'id': p.id,
+            'title': p.title,
+            'budget': p.budget,
+            'status': p_status_str,
+            'editor_name': editor_name,
+            'created_at': p.created_at.isoformat() if p.created_at else None
+        })
 
     # Favorite editors — fetch full snippets
     fav_ids = profile.favorite_editors or []
@@ -110,7 +162,14 @@ def get_client_dashboard(current_user: dict):
                 })
 
     # Unread notifications
-    unread_count = profile.get_unread_count()
+    import controllers.notification_controller as notif_ctrl
+    # Fetch from notification controller to maintain consistency
+    unread_count = 0
+    try:
+        from models.notification_model import Notification
+        unread_count = Notification.query.filter_by(user_id=user.id, is_read=False).count()
+    except Exception:
+        pass
 
     # Recent activity feed (static for now — will be order events in Week 3)
     recent_activity = []
@@ -134,6 +193,7 @@ def get_client_dashboard(current_user: dict):
                 'total_spent':        total_spent,
             },
             'favorite_editors':   fav_editors,
+            'recent_projects':    recent_projects,
             'unread_notifications': unread_count,
             'recent_activity':    recent_activity,
         },

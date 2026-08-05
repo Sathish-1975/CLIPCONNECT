@@ -55,6 +55,9 @@
         <button class="nav-btn" data-section="saved">
           <span class="nav-btn__icon">⭐</span><span class="nav-lbl">Saved Projects</span>
         </button>
+        <a href="chat.html" class="nav-btn" style="text-decoration:none">
+          <span class="nav-btn__icon">💬</span><span class="nav-lbl">Messages</span>
+        </a>
         <button class="nav-btn" data-section="earnings">
           <span class="nav-btn__icon">💰</span><span class="nav-lbl">Earnings</span>
         </button>
@@ -802,7 +805,76 @@
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<script src="js/editor-dashboard.js"></script>
+<!-- Project Details Modal for Editor -->
+<div class="admin-modal" id="editor-project-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);">
+  <div class="admin-modal-content" style="background:var(--bg-card, #1e1e2d); padding:24px; border-radius:12px; max-width:700px; width:90%; border:1px solid var(--border, #333); max-height:90vh; overflow-y:auto; position:relative;">
+    <button onclick="closeEditorProjectModal()" style="position:absolute; right:20px; top:20px; cursor:pointer; font-size:1.5rem; background:none; border:none; color:#9ca3af;">&times;</button>
+    <h2 id="epm-title" style="margin-top:0; border-bottom:1px solid #333; padding-bottom:12px; margin-bottom:16px;">Project Details</h2>
+    
+    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+      <div style="display:flex; border-bottom:1px solid #333; padding-bottom:8px;">
+        <div style="width:150px; color:#9ca3af; font-weight:600; font-size:0.9rem;">Client</div>
+        <div id="epm-client" style="flex:1; color:#e5e7eb; font-size:0.9rem;"></div>
+      </div>
+      <div style="display:flex; border-bottom:1px solid #333; padding-bottom:8px;">
+        <div style="width:150px; color:#9ca3af; font-weight:600; font-size:0.9rem;">Budget</div>
+        <div id="epm-budget" style="flex:1; color:#e5e7eb; font-size:0.9rem;"></div>
+      </div>
+      <div style="display:flex; border-bottom:1px solid #333; padding-bottom:8px;">
+        <div style="width:150px; color:#9ca3af; font-weight:600; font-size:0.9rem;">Deadline</div>
+        <div id="epm-deadline" style="flex:1; color:#e5e7eb; font-size:0.9rem;"></div>
+      </div>
+      <div style="display:flex; border-bottom:1px solid #333; padding-bottom:8px;">
+        <div style="width:150px; color:#9ca3af; font-weight:600; font-size:0.9rem;">Required Skills</div>
+        <div id="epm-skills" style="flex:1; color:#e5e7eb; font-size:0.9rem;"></div>
+      </div>
+      <div style="display:flex; border-bottom:1px solid #333; padding-bottom:8px;">
+        <div style="width:150px; color:#9ca3af; font-weight:600; font-size:0.9rem;">Status</div>
+        <div id="epm-status" style="flex:1; color:#e5e7eb; font-size:0.9rem;"></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <div style="color:#9ca3af; font-weight:600; font-size:0.9rem;">Description</div>
+        <div id="epm-desc" style="color:#e5e7eb; font-size:0.9rem; background:#151521; padding:12px; border-radius:8px;"></div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:4px; margin-top:10px;">
+        <div style="color:#9ca3af; font-weight:600; font-size:0.9rem;">Project Files & Links</div>
+        <div id="epm-files" style="color:#e5e7eb; font-size:0.9rem;"></div>
+      </div>
+    </div>
+
+    <!-- Update Progress -->
+    <div style="background:#151521; border:1px solid #333; padding:16px; border-radius:8px; margin-bottom:20px;">
+      <h3 style="margin-top:0; font-size:1.1rem; margin-bottom:12px;">Update Progress</h3>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <select id="epm-progress-select" style="padding:8px 12px; border-radius:6px; border:1px solid var(--border, #333); background:var(--bg-card, #1e1e2d); color:#fff; flex:1;">
+          <option value="pending">Pending</option>
+          <option value="accepted">Accepted</option>
+          <option value="in_progress">In Progress</option>
+        </select>
+        <button class="btn btn-primary" id="epm-update-btn">Update Status</button>
+      </div>
+    </div>
+
+    <!-- Client Revision Notes -->
+    <div id="epm-revision-section" style="display:none; background:#ef44441a; border:1px solid #ef4444; padding:16px; border-radius:8px; margin-bottom:20px;">
+      <h3 style="margin-top:0; font-size:1.1rem; margin-bottom:12px; color:#ef4444;">Revision Requested</h3>
+      <div id="epm-revision-notes" style="color:#e5e7eb; font-size:0.9rem;"></div>
+    </div>
+
+    <!-- Submit Project -->
+    <div style="background:#10b9811a; border:1px solid #10b981; padding:16px; border-radius:8px;">
+      <h3 style="margin-top:0; font-size:1.1rem; margin-bottom:12px; color:#10b981;">Submit Completed Work</h3>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <input type="file" id="epm-submit-file" style="color:#fff;" />
+        <textarea id="epm-submit-notes" rows="3" placeholder="Add submission notes or links..." style="padding:10px; border-radius:6px; border:1px solid var(--border, #333); background:var(--bg-card, #1e1e2d); color:#fff; width:100%; box-sizing:border-box;"></textarea>
+        <button class="btn btn-success" style="width:100%" id="epm-submit-btn">Submit Project</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/editor-dashboard.js?v=2"></script>
 
 <script>
   // Wire analytics chart copy to the analytics section
@@ -827,6 +899,6 @@
   })();
 </script>
 
-<script src="js/notifications.js"></script>
+<script src="js/notifications.js?v=2"></script>
 </body>
 </html>

@@ -7,8 +7,8 @@
  */
 'use strict';
 
-const API     = window.location.origin.includes(':5001') ? '/api' : 'http://localhost:5001/api';
-const UPLOADS = window.location.origin.includes(':5001') ? '/uploads' : 'http://localhost:5001/uploads';
+const API     = window.location.origin.includes(':5000') ? '/api' : 'http://localhost:5000/api';
+const UPLOADS = window.location.origin.includes(':5000') ? '/uploads' : 'http://localhost:5000/uploads';
 
 /* ── State ─────────────────────────────────────────────── */
 const state = {

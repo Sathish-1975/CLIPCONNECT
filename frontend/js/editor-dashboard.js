@@ -16,8 +16,8 @@
 'use strict';
 
 /* ── Config ─────────────────────────────────────────────── */
-const API     = 'http://localhost:5001/api';
-const UPLOADS = 'http://localhost:5001/uploads';
+const API     = 'http://localhost:5000/api';
+const UPLOADS = 'http://localhost:5000/uploads';
 
 /* ── State ──────────────────────────────────────────────── */
 let dashData        = null;
@@ -348,8 +348,8 @@ function renderRequests() {
       <td>${timeAgo(r.created_at)}</td>
       <td>
         <div style="display:flex;gap:6px">
-          <button class="btn btn-success btn-sm">Accept</button>
-          <button class="btn btn-danger btn-sm">Decline</button>
+          <button class="btn btn-success btn-sm" onclick="acceptRequest(${r.id})">Accept</button>
+          <button class="btn btn-danger btn-sm" onclick="declineRequest(${r.id})">Decline</button>
         </div>
       </td>
     </tr>`).join('');
@@ -375,7 +375,7 @@ function renderProjects() {
       <td><span class="badge badge--${p.status}"><span class="badge__dot"></span>${p.status}</span></td>
       <td>${p.due_date ? fmtDate(p.due_date) : '—'}</td>
       <td>${fmtINR(p.price || 0)}</td>
-      <td><button class="btn btn-secondary btn-sm">View</button></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="openEditorProjectModal(${p.id})">View</button></td>
     </tr>`).join('');
 }
 
@@ -492,6 +492,12 @@ async function init() {
   initLogout();
 
   await loadDashboard();
+
+  // 15-second polling for real-time dashboard updates
+  setInterval(async () => {
+    await loadDashboard();
+    if (typeof refreshAll === 'function') await refreshAll();
+  }, 15000);
 }
 
 /* ── Saved Projects ─────────────────────────────────────── */
@@ -560,4 +566,191 @@ async function removeSavedProject(projectId) {
 }
 window.removeSavedProject = removeSavedProject;
 
+async function acceptRequest(proposalId) {
+  try {
+    const res = await fetch(`${API}/hire/accept`, {
+      method: 'PUT',
+      headers: authH(),
+      body: JSON.stringify({ proposal_id: proposalId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('Project accepted successfully!', 'success');
+      await loadDashboard(); // refresh dashboard data
+    } else {
+      toast(data.message || 'Failed to accept request.', 'error');
+    }
+  } catch (err) {
+    toast('Network error.', 'error');
+  }
+}
+window.acceptRequest = acceptRequest;
+
+async function declineRequest(proposalId) {
+  if (!confirm('Are you sure you want to decline this request?')) return;
+  try {
+    const res = await fetch(`${API}/hire/reject`, {
+      method: 'PUT',
+      headers: authH(),
+      body: JSON.stringify({ proposal_id: proposalId, reason: 'Declined by editor.' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('Request declined.', 'success');
+      await loadDashboard(); // refresh dashboard data
+    } else {
+      toast(data.message || 'Failed to decline request.', 'error');
+    }
+  } catch (err) {
+    toast('Network error.', 'error');
+  }
+}
+window.declineRequest = declineRequest;
+
 document.addEventListener('DOMContentLoaded', init);
+
+
+/* ── Editor Project Modal ────────────────────────────────── */
+let currentViewProjectId = null;
+
+async function openEditorProjectModal(projectId) {
+  currentViewProjectId = projectId;
+  const modal = document.getElementById('editor-project-modal');
+  if (!modal) return;
+  
+  // Find project data from dashData
+  let project = dashData?.recent_projects?.find(p => p.id === projectId);
+  if (!project) {
+    toast('Project not found in cache. Fetching...', 'info');
+    try {
+      const res = await fetch(`${API}/projects/${projectId}`, { headers: authH() });
+      const data = await res.json();
+      if (data.success) {
+        project = data.data.project;
+      } else {
+        toast('Failed to load project details.', 'error');
+        return;
+      }
+    } catch (e) {
+      toast('Network error fetching project.', 'error');
+      return;
+    }
+  }
+
+  setTxt('epm-title', project.title);
+  setTxt('epm-client', project.client_name);
+  setTxt('epm-budget', fmtINR(project.price || project.budget_max || project.budget_min || 0));
+  setTxt('epm-deadline', project.due_date ? fmtDate(project.due_date) : (project.deadline ? fmtDate(project.deadline) : '—'));
+  setTxt('epm-skills', project.required_skills?.join(', ') || '—');
+  setTxt('epm-status', project.status.replace('_', ' ').toUpperCase());
+  setTxt('epm-desc', project.description || 'No description provided.');
+
+  const filesContainer = document.getElementById('epm-files');
+  if (project.project_files && project.project_files.length > 0) {
+    filesContainer.innerHTML = project.project_files.map(f => `<a href="${f.url}" target="_blank" style="color:#0ea5e9;">${esc(f.filename)}</a>`).join('<br>');
+  } else {
+    filesContainer.innerHTML = 'No files attached.';
+  }
+
+  // Handle Progress Dropdown
+  const select = document.getElementById('epm-progress-select');
+  if (['pending', 'accepted', 'in_progress'].includes(project.status.toLowerCase())) {
+    select.value = project.status.toLowerCase();
+    select.disabled = false;
+    document.getElementById('epm-update-btn').disabled = false;
+  } else {
+    select.innerHTML = `<option value="${project.status.toLowerCase()}">${project.status}</option>`;
+    select.disabled = true;
+    document.getElementById('epm-update-btn').disabled = true;
+  }
+
+  // Handle Revision Section
+  const revSection = document.getElementById('epm-revision-section');
+  if (project.status === 'revision_requested') {
+    revSection.style.display = 'block';
+    // Fetch latest revision
+    try {
+      const revRes = await fetch(`${API}/projects/${projectId}/revisions`, { headers: authH() });
+      const revData = await revRes.json();
+      if (revData.success && revData.data.revisions.length > 0) {
+        document.getElementById('epm-revision-notes').textContent = revData.data.revisions[0].comments;
+      } else {
+        document.getElementById('epm-revision-notes').textContent = 'Please check with client for details.';
+      }
+    } catch (e) {
+      document.getElementById('epm-revision-notes').textContent = 'Could not load revision details.';
+    }
+  } else {
+    revSection.style.display = 'none';
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeEditorProjectModal() {
+  const modal = document.getElementById('editor-project-modal');
+  if (modal) modal.style.display = 'none';
+  currentViewProjectId = null;
+}
+
+document.getElementById('epm-update-btn')?.addEventListener('click', async () => {
+  if (!currentViewProjectId) return;
+  const status = document.getElementById('epm-progress-select').value;
+  
+  try {
+    const res = await fetch(`${API}/projects/${currentViewProjectId}/editor-progress`, {
+      method: 'PATCH',
+      headers: authH(),
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('Project progress updated!', 'success');
+      closeEditorProjectModal();
+      loadDashboard();
+    } else {
+      toast(data.message || 'Failed to update progress.', 'error');
+    }
+  } catch (e) {
+    toast('Network error.', 'error');
+  }
+});
+
+document.getElementById('epm-submit-btn')?.addEventListener('click', async () => {
+  if (!currentViewProjectId) return;
+  
+  const fileInput = document.getElementById('epm-submit-file');
+  const notes = document.getElementById('epm-submit-notes').value;
+  
+  const formData = new FormData();
+  formData.append('notes', notes);
+  if (fileInput.files.length > 0) {
+    formData.append('file', fileInput.files[0]);
+  }
+  
+  const btn = document.getElementById('epm-submit-btn');
+  btn.textContent = 'Submitting...';
+  btn.disabled = true;
+  
+  try {
+    const token = getToken();
+    const res = await fetch(`${API}/projects/${currentViewProjectId}/submit`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` }, // Do not set Content-Type for FormData
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast('Project submitted successfully!', 'success');
+      closeEditorProjectModal();
+      loadDashboard();
+    } else {
+      toast(data.message || 'Failed to submit project.', 'error');
+    }
+  } catch (e) {
+    toast('Network error.', 'error');
+  } finally {
+    btn.textContent = 'Submit Project';
+    btn.disabled = false;
+  }
+});

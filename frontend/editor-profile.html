@@ -158,10 +158,10 @@
 
         <!-- Header actions -->
         <div class="profile-header__actions">
-          <button class="btn btn-secondary btn-lg" id="chat-btn-top" onclick="document.getElementById('chat-btn').click()">
+          <button class="btn btn-secondary btn-lg" id="chat-btn-top">
             💬 Chat
           </button>
-          <button class="btn btn-primary btn-lg" id="hire-btn-top" onclick="document.getElementById('hire-btn').click()">
+          <button class="btn btn-primary btn-lg" id="hire-btn-top">
             ✨ Hire This Editor
           </button>
         </div>
@@ -180,7 +180,7 @@
         <div class="hire-card">
           <div class="hire-card__price" id="hire-price">Contact for Price</div>
           <div class="hire-card__label">Starting from</div>
-          <button class="hire-card__btn" id="hire-btn-card" onclick="document.getElementById('hire-btn').click()">
+          <button class="hire-card__btn" id="hire-btn-card">
             ✨ Hire This Editor
           </button>
           <a href="#portfolio-images" class="btn btn-secondary" style="width:100%;display:flex;justify-content:center">View Portfolio</a>
@@ -305,8 +305,8 @@
 
   </div><!-- /profile-content -->
 
-  <script src="js/hire-modal.js"></script>
-  <script src="js/profile.js"></script>
+  <script src="js/hire-modal.js?v=2"></script>
+  <script src="js/profile.js?v=2"></script>
   <script>
     // Update hire-price once JS loads profile data (called from profile.js render)
     // Small shim so renderPricing can also update the sidebar hire card

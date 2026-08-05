@@ -16,7 +16,7 @@ from routes.payment_routes import payment_bp
 from routes.ai_routes import ai_bp
 from routes.admin_routes import admin_bp
 from routes.chat_routes import chat_bp
-
+from routes.invoice_routes import invoice_bp
 
 def register_all_blueprints(app):
     """
@@ -31,6 +31,7 @@ def register_all_blueprints(app):
         /api/ai            → ai_bp           (ai matching & description generator)
         /api/admin         → admin_bp        (platform stats, moderation, audit)
         /api/chat          → chat_bp         (real-time 1-on-1 messaging)
+        /api/invoices      → invoice_bp      (invoice HTML endpoints)
         /api               → api_bp          (simplified REST API endpoints)
     """
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -41,6 +42,7 @@ def register_all_blueprints(app):
     app.register_blueprint(ai_bp, url_prefix='/api/ai')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.register_blueprint(chat_bp, url_prefix='/api/chat')
+    app.register_blueprint(invoice_bp, url_prefix='/api/invoices')
     app.register_blueprint(api_bp, url_prefix='/api')
 
     app.logger.info("[OK] All blueprints registered successfully.")

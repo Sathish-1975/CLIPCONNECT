@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from app import create_app
 from database import db
 from models import (
-    User, UserRole, EditorProfile, EditorCategory, ClientProfile,
+    User, UserRole, EditorProfile, EditorCategory, AvailabilityStatus, ClientProfile,
     Project, BudgetType, ProjectVisibility, ProjectPriority, ProjectStatus,
     Message, Payment, Transaction, Invoice, UserSettings
 )
@@ -84,14 +84,14 @@ def seed_database():
                 username="alexedits",
                 tagline="Professional Video Editor & Motion Designer",
                 bio="10+ years creating viral YouTube videos and cinematic trailers.",
-                category="youtube",
+                category=EditorCategory.YOUTUBE,
                 experience_years=5,
                 skills=["Premiere Pro", "After Effects", "DaVinci Resolve", "Color Grading"],
                 software_used=["Premiere Pro", "After Effects"],
                 hourly_rate=1200.0,
                 fixed_price_from=5000.0,
                 fixed_price_to=50000.0,
-                availability_status="available",
+                availability_status=AvailabilityStatus.AVAILABLE,
                 avg_rating=4.9,
                 total_reviews=18,
                 completed_projects=15
@@ -115,7 +115,7 @@ def seed_database():
                 budget=8500.0,
                 budget_type=BudgetType.FIXED,
                 required_skills=["Premiere Pro", "Motion Graphics"],
-                editing_software=["Premiere Pro"],
+                preferred_software=["Premiere Pro"],
                 experience_required="Intermediate",
                 priority=ProjectPriority.HIGH,
                 visibility=ProjectVisibility.PUBLIC,

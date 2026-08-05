@@ -264,6 +264,7 @@ async function refreshAll() {
   // Update full section list
   renderSection(notifications, unread_count);
 }
+window.refreshAll = refreshAll;
 
 // ─── Initialize bell dropdown ────────────────────────────────────────────────
 function initBellDropdown() {

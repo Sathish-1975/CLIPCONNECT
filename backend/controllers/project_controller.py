@@ -473,7 +473,7 @@ def apply_to_project(current_user: dict, project_id: int):
         project_id=project_id,
         editor_id=current_user['user_id'],
         cover_letter=data.get('cover_letter', 'Submitted application via project page.'),
-        proposed_price=data.get('proposed_price', project.budget_max or project.budget_min or 0),
+        proposed_price=data.get('proposed_price', project.budget or 0),
         status='pending'
     )
 
@@ -571,5 +571,401 @@ def hire_editor(current_user: dict, project_id: int):
     except Exception as e:
         db.session.rollback()
         return error_response(message=f"Failed to hire editor: {str(e)}", status_code=500)
+
+
+def editor_update_progress(current_user: dict, project_id: int):
+    """
+    PATCH /api/projects/<id>/editor-progress
+    Editor updates the project progress (e.g. pending, accepted, in_progress).
+    """
+    if current_user.get('role') != 'editor':
+        return error_response(message="Only editors can update project progress.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    if project.hired_editor_id != current_user['user_id']:
+        return error_response(message="You are not hired for this project.", status_code=403)
+
+    data = request.get_json(silent=True) or {}
+    new_status_str = (data.get('status') or '').strip().lower()
+
+    # Editors should only switch between working statuses
+    allowed_statuses = ['pending', 'accepted', 'in_progress']
+    if new_status_str not in allowed_statuses:
+        return error_response(message=f"Invalid status. Editors can only set: {', '.join(allowed_statuses)}", status_code=422)
+
+    try:
+        new_status = ProjectStatus(new_status_str)
+        project.status = new_status
+        project.add_timeline_event(new_status.value, f"Progress updated to {new_status.value}", "Updated by Editor")
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message="Failed to update progress.", status_code=500)
+
+    return success_response(data={'project': project.to_dict()}, message=f"Project progress updated to {new_status.value}.")
+
+
+def editor_submit_project(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/submit
+    Editor submits completed files and notes. 
+    Changes status to COMPLETED, notifies client, records revenue.
+    """
+    from utils.notification_helper import create_notification
+    from utils.upload_helper import save_upload
+    from models.payment_model import Payment, Transaction
+    from datetime import datetime, timezone
+
+    if current_user.get('role') != 'editor':
+        return error_response(message="Only editors can submit projects.", status_code=403)
+def upload_sample_file(current_user: dict):
+    """
+    POST /api/projects/upload-sample
+    Upload a sample project file.
+    """
+    if current_user.get('role') != 'client':
+        return error_response(message="Only clients can upload project files.", status_code=403)
+
+    file = request.files.get('file')
+    if not file:
+        return error_response(message="No file uploaded.", status_code=400)
+
+    try:
+        filename = save_upload(file, 'project_samples')
+        return success_response(data={
+            'filename': filename,
+            'url': f"/uploads/project_samples/{filename}"
+        }, message="Sample file uploaded successfully.")
+    except Exception as e:
+        return error_response(message=f"Upload failed: {str(e)}", status_code=422)
+
+
+def apply_to_project(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/apply
+    Apply to a project as an editor.
+    """
+    from models.proposal_model import Proposal
+
+    if current_user.get('role') != 'editor':
+        return error_response(message="Only editors can apply to projects.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    existing = Proposal.query.filter_by(project_id=project_id, editor_id=current_user['user_id']).first()
+    if existing:
+        return error_response(message="You have already applied to this project.", status_code=400)
+
+    data = request.get_json(silent=True) or {}
+    proposal = Proposal(
+        project_id=project_id,
+        editor_id=current_user['user_id'],
+        cover_letter=data.get('cover_letter', 'Submitted application via project page.'),
+        proposed_price=data.get('proposed_price', project.budget or 0),
+        status='pending'
+    )
+
+    try:
+        db.session.add(proposal)
+        db.session.commit()
+
+        # Trigger notification to client
+        from utils.notification_helper import create_notification
+        create_notification(
+            user_id=project.client_id,
+            title="New Proposal Submitted",
+            message=f"An editor applied to your project '{project.title}'.",
+            type_str="proposal_submitted",
+            related_project_id=project_id
+        )
+
+        return success_response(data={'proposal': proposal.to_dict()}, message="Application submitted successfully.")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message=f"Failed to submit application: {str(e)}", status_code=500)
+
+
+def hire_editor(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/hire
+    Client hires an editor for the project.
+    Changes project status to IN_PROGRESS and sends notifications.
+    """
+    from models.proposal_model import Proposal
+    from utils.notification_helper import create_notification
+
+    if current_user.get('role') != 'client':
+        return error_response(message="Only clients can hire editors.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    if project.client_id != current_user['user_id']:
+        return error_response(message="You can only hire editors for your own projects.", status_code=403)
+
+    data = request.get_json(silent=True) or {}
+    editor_id = data.get('editor_id')
+    if not editor_id:
+        return error_response(message="editor_id is required.", status_code=400)
+
+    proposal = Proposal.query.filter_by(project_id=project_id, editor_id=editor_id).first()
+    if not proposal:
+        return error_response(message="Proposal from this editor not found.", status_code=404)
+
+    try:
+        # Update project status and hired_editor_id
+        project.hired_editor_id = editor_id
+        project.status = ProjectStatus.IN_PROGRESS
+
+        # Update proposals status
+        proposal.status = 'accepted'
+
+        other_proposals = Proposal.query.filter(
+            Proposal.project_id == project_id,
+            Proposal.id != proposal.id
+        ).all()
+        for p in other_proposals:
+            p.status = 'rejected'
+            create_notification(
+                user_id=p.editor_id,
+                title="Proposal Rejected",
+                message=f"Your proposal for project '{project.title}' was not selected.",
+                type_str="proposal_rejected",
+                related_project_id=project_id
+            )
+
+        db.session.commit()
+
+        # Notify hired editor
+        create_notification(
+            user_id=editor_id,
+            title="Proposal Accepted / Project Assigned",
+            message=f"Congratulations! You were hired for project '{project.title}'.",
+            type_str="proposal_accepted",
+            related_project_id=project_id
+        )
+
+        # Notify client
+        create_notification(
+            user_id=project.client_id,
+            title="Project Assigned & In Progress",
+            message=f"Project '{project.title}' status is now In Progress.",
+            type_str="project_assigned",
+            related_project_id=project_id
+        )
+
+        return success_response(data={'project': project.to_dict()}, message="Editor hired successfully. Project status updated to In Progress.")
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message=f"Failed to hire editor: {str(e)}", status_code=500)
+
+
+def editor_update_progress(current_user: dict, project_id: int):
+    """
+    PATCH /api/projects/<id>/editor-progress
+    Editor updates the project progress (e.g. pending, accepted, in_progress).
+    """
+    if current_user.get('role') != 'editor':
+        return error_response(message="Only editors can update project progress.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    if project.hired_editor_id != current_user['user_id']:
+        return error_response(message="You are not hired for this project.", status_code=403)
+
+    data = request.get_json(silent=True) or {}
+    new_status_str = (data.get('status') or '').strip().lower()
+
+    # Editors should only switch between working statuses
+    allowed_statuses = ['pending', 'accepted', 'in_progress']
+    if new_status_str not in allowed_statuses:
+        return error_response(message=f"Invalid status. Editors can only set: {', '.join(allowed_statuses)}", status_code=422)
+
+    try:
+        new_status = ProjectStatus(new_status_str)
+        project.status = new_status
+        project.add_timeline_event(new_status.value, f"Progress updated to {new_status.value}", "Updated by Editor")
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message="Failed to update progress.", status_code=500)
+
+    return success_response(data={'project': project.to_dict()}, message=f"Project progress updated to {new_status.value}.")
+
+
+def editor_submit_project(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/submit
+    Editor submits completed files and notes. 
+    Changes status to UNDER_REVIEW, notifies client.
+    """
+    from utils.notification_helper import create_notification
+    from utils.upload_helper import save_upload
+    from datetime import datetime, timezone
+
+    if current_user.get('role') != 'editor':
+        return error_response(message="Only editors can submit projects.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    if project.hired_editor_id != current_user['user_id']:
+        return error_response(message="You are not hired for this project.", status_code=403)
+
+    notes = request.form.get('notes', '')
+    file = request.files.get('file')
+
+    try:
+        # Save file if provided
+        file_info = None
+        if file:
+            filename = save_upload(file, 'project_submissions')
+            file_info = {
+                'filename': filename,
+                'url': f"/uploads/project_submissions/{filename}",
+                'uploaded_by': current_user['user_id'],
+                'notes': notes,
+                'created_at': datetime.now(timezone.utc).isoformat()
+            }
+            p_files = list(project.project_files or [])
+            p_files.append(file_info)
+            project.project_files = p_files
+
+        # Update Timeline
+        project.add_timeline_event('under_review', "Project Submitted", f"Editor submitted work for review. Notes: {notes}")
+        project.status = ProjectStatus.UNDER_REVIEW
+
+        db.session.commit()
+
+        # Notify Client
+        create_notification(
+            user_id=project.client_id,
+            title="Project Ready for Review",
+            message=f"The editor has submitted work for '{project.title}'. Please review.",
+            type_str="project_submitted",
+            related_project_id=project_id
+        )
+
+        return success_response(data={'project': project.to_dict()}, message="Project submitted for review successfully.")
+
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message=f"Submission failed: {str(e)}", status_code=500)
+
+
+def client_approve_project(current_user: dict, project_id: int):
+    """
+    POST /api/projects/<id>/approve
+    Client approves the submitted project.
+    Changes status to COMPLETED, notifies editor, records revenue.
+    """
+    from utils.notification_helper import create_notification
+    from models.payment_model import Payment, Transaction
+    from datetime import datetime, timezone
+
+    if current_user.get('role') != 'client':
+        return error_response(message="Only clients can approve projects.", status_code=403)
+
+    project = Project.query.get(project_id)
+    if not project or project.status == ProjectStatus.DELETED:
+        return error_response(message="Project not found.", status_code=404)
+
+    if project.client_id != current_user['user_id']:
+        return error_response(message="You can only approve your own projects.", status_code=403)
+
+    if project.status != ProjectStatus.UNDER_REVIEW:
+        return error_response(message="Project must be submitted for review first.", status_code=400)
+
+    try:
+        project.status = ProjectStatus.COMPLETED
+        project.add_timeline_event('completed', "Project Approved", "Client approved the final submission.")
+        
+        # Calculate Revenue & Create Ledger entries
+        existing_payment = Payment.query.filter_by(project_id=project_id, editor_id=project.hired_editor_id).first()
+        
+        commission_pct = current_app.config.get('PLATFORM_COMMISSION', 0.10)
+        budget = float(project.budget) if project.budget else 0.0
+        editor_earnings = budget * (1 - commission_pct)
+
+        payment_id = None
+        if existing_payment:
+            existing_payment.status = 'released'
+            tx = Transaction(payment_id=existing_payment.id, type='release', amount=existing_payment.amount, status='success', notes="Project completed & funds released")
+            db.session.add(tx)
+            payment_id = existing_payment.id
+        else:
+            new_payment = Payment(
+                project_id=project_id,
+                client_id=project.client_id,
+                editor_id=project.hired_editor_id,
+                amount=editor_earnings, # Log the editor's payout
+                currency='INR',
+                status='released'
+            )
+            db.session.add(new_payment)
+            db.session.flush()
+            payment_id = new_payment.id
+            
+            # The client paid the full budget
+            tx_deposit = Transaction(payment_id=payment_id, type='deposit', amount=budget, status='success', notes="Project total budget")
+            db.session.add(tx_deposit)
+            
+            # Payout to editor
+            tx_payout = Transaction(payment_id=payment_id, type='payout', amount=editor_earnings, status='success', notes="Editor earnings payout")
+            db.session.add(tx_payout)
+
+        # Generate Invoice
+        from models.payment_model import Invoice
+        invoice = Invoice(
+            payment_id=payment_id,
+            client_id=project.client_id,
+            editor_id=project.hired_editor_id,
+            amount=budget,
+            pdf_url=f"/api/invoices/{payment_id}/download"
+        )
+        db.session.add(invoice)
+
+        # Update Editor Wallet (EditorProfile)
+        from models.editor_profile_model import EditorProfile
+        editor_profile = EditorProfile.query.filter_by(user_id=project.hired_editor_id).first()
+        if editor_profile:
+            editor_profile.completed_projects = (editor_profile.completed_projects or 0) + 1
+            editor_profile.total_earnings = float(editor_profile.total_earnings or 0.0) + editor_earnings
+            # You could also increment a monthly_earnings or pending_payments here
+
+        db.session.commit()
+
+        # Notify Editor
+        create_notification(
+            user_id=project.hired_editor_id,
+            title="Project Approved! 🎉",
+            message=f"Client approved your work for '{project.title}'. Payment is being processed.",
+            type_str="project_completed",
+            related_project_id=project_id
+        )
+
+        # Notify Client (Invoice Generated)
+        create_notification(
+            user_id=project.client_id,
+            title="Invoice Generated 🧾",
+            message=f"Invoice for project '{project.title}' is now available.",
+            type_str="general",
+            related_project_id=project_id
+        )
+
+        return success_response(data={'project': project.to_dict(), 'invoice_id': invoice.id}, message="Project approved successfully.")
+
+    except Exception as e:
+        db.session.rollback()
+        return error_response(message=f"Approval failed: {str(e)}", status_code=500)
 
 

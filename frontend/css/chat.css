@@ -4,9 +4,9 @@
 
 .chat-container {
     display: flex;
-    height: calc(100vh - 120px);
+    height: calc(100vh - var(--navbar-height) - 40px);
     max-width: 1400px;
-    margin: 20px auto;
+    margin: calc(var(--navbar-height) + 20px) auto 20px;
     background: rgba(22, 27, 34, 0.85);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);

@@ -12,8 +12,8 @@
  */
 'use strict';
 
-const API     = 'http://localhost:5001/api';
-const UPLOADS = 'http://localhost:5001/uploads';
+const API     = 'http://localhost:5000/api';
+const UPLOADS = 'http://localhost:5000/uploads';
 const RECENT_KEY = 'cc_recent_searches';
 const MAX_RECENT  = 8;
 
@@ -240,7 +240,7 @@ function renderResults(editors) {
     card.addEventListener('click', () => window.open(`editor-profile.html?id=${card.dataset.id}`, '_blank'));
   });
   grid.querySelectorAll('.btn-hire').forEach(btn => {
-    btn.addEventListener('click', e => { e.stopPropagation(); toast(`Hiring flow coming soon! (${btn.dataset.name})`, 'info'); });
+    btn.addEventListener('click', e => { e.stopPropagation(); openHireModal(btn.dataset.id, btn.dataset.name); });
   });
 }
 

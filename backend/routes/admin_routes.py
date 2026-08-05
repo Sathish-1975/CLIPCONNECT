@@ -11,6 +11,7 @@ Routes:
   GET   /api/admin/users              -> List all users (clients & editors)
   PATCH /api/admin/users/<id>/status  -> Modifies user status (verify/suspend/delete)
   GET   /api/admin/projects           -> All platform projects
+  GET   /api/admin/proposals          -> All hire requests (proposals)
   GET   /api/admin/payments           -> All financial transaction logs
 
 How it integrates with the rest of the application:
@@ -52,6 +53,13 @@ def update_user_status(current_user, user_id):
 def list_projects(current_user):
     """GET /api/admin/projects — List all projects."""
     return admin_ctrl.list_all_projects(current_user)
+
+
+@admin_bp.route('/proposals', methods=['GET'])
+@token_required
+def list_proposals(current_user):
+    """GET /api/admin/proposals — List all hire requests."""
+    return admin_ctrl.list_all_proposals(current_user)
 
 
 @admin_bp.route('/payments', methods=['GET'])

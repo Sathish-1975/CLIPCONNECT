@@ -97,6 +97,15 @@ def submit_hire_request(current_user: dict):
             related_project_id=project_id
         )
 
+        # Notify the client (so they see it in their notification panel)
+        create_notification(
+            user_id=current_user['user_id'],
+            title="📤 Hire Request Sent",
+            message=f"You successfully invited {editor.full_name} to work on '{project.title}'.",
+            type_str="proposal_submitted",
+            related_project_id=project_id
+        )
+
         return success_response(
             data={'proposal': proposal.to_dict()},
             message="Hire invitation sent successfully!",
