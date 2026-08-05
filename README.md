@@ -424,14 +424,25 @@ Authorization: Bearer <your_jwt_token>
 
 ---
 
-## Coming in Week 2
+## Week 2 / Current Progress
 
-- Editor Gig/Profile model
-- Gig CRUD APIs (create, list, get, update)
-- Dashboard pages
-- File upload (profile images)
-- Search & filter functionality
+- Editor Profile / Dashboard Models ✅ Done
+- **Hire Workflow Integrations:**
+  - Fixed syntax bugs and backdrop stacking in the frontend Hire Modal (`hire-modal.js`).
+  - Implemented Client Notifications (`hire_controller.py`) so clients see a "Hire Request Sent" confirmation.
+  - Connected the backend to properly fetch "Incoming Requests" (Proposals) into the Editor Dashboard instead of returning placeholder mock data.
+  - Wired up "Accept" and "Decline" API calls on the Editor Dashboard frontend (`editor-dashboard.js`) to allow real-time status updates on project proposals.
+- Dashboard pages (Client & Editor) ✅ Done
+- Database seeding capability (`seed_data.py` providing test admin, client, and editor accounts).
+- **Backend Controller Bug Fixes:**
+  - Resolved `AttributeError` in `project_controller.py` during Proposal submission by correcting budget properties.
+  - Fixed incorrect file helper imports in project submissions.
+  - Fixed incorrect client avatar references in `project_model.py` (`profile_photo` instead of `company_logo`).
+  - Removed duplicate and obsolete controller files (e.g., `dashboard_controller.py`).
+- File upload (profile images) (In Progress)
+- Search & filter functionality (In Progress)
 
 ---
 
 *Built with ❤️ for ClipConnect — Week 1*
+satish
