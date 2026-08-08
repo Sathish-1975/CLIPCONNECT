@@ -45,14 +45,9 @@ async function openHireModal(editorId, editorName) {
     return;
   }
 
-  if (!user) {
-    alert('Please log in as a client to hire editors.');
-    window.location.href = 'login.html';
-    return;
-  }
-
   if (user.role !== 'client') {
-    alert('Only client accounts can hire editors.');
+    if (typeof toast === 'function') toast('Only client accounts can hire editors.', 'error');
+    else alert('Only client accounts can hire editors.');
     return;
   }
 

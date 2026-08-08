@@ -99,22 +99,13 @@ def get_editor_dashboard(current_user: dict):
 
     completion = _calc_completion(profile)
 
-    # ── Stats (dynamically calculated for active/pending) ──
-    # Calculate active projects (IN_PROGRESS, UNDER_REVIEW, REVISION_REQUESTED)
-    active_projs = Project.query.filter_by(hired_editor_id=user.id).filter(
-        Project.status.in_(["in_progress", "under_review", "revision_requested"])
-    ).all()
-    
-    active_projects_count = len(active_projs)
-    # Editor earns 90% of the project budget (10% platform fee assumed based on client_approve_project)
-    pending_payments_val = sum(float(p.budget) for p in active_projs if p.budget) * 0.90
-
+    # ── Stats (zeroed until orders are built in Week 3) ──
     stats = {
-        'incoming_requests':  Proposal.query.filter_by(editor_id=user.id).filter(Proposal.status.in_(['invited', 'pending'])).count(),
-        'active_projects':    active_projects_count,
+        'incoming_requests':  0,
+        'active_projects':    0,
         'completed_projects': profile.completed_projects or 0,
         'monthly_earnings':   0.0,
-        'pending_payments':   pending_payments_val,
+        'pending_payments':   0.0,
         'total_earnings':     float(profile.total_earnings) if profile.total_earnings else 0.0,
         'total_reviews':      profile.total_reviews or 0,
         'avg_rating':         float(profile.avg_rating) if profile.avg_rating else 0.0,

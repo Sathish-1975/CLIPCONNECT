@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Dashboard — ClipConnect</title>
+  <meta name="description" content="Manage your projects, browse editors, track activity, and update your settings on ClipConnect.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     DASHBOARD SHELL
+════════════════════════════════════════════════════════ -->
+<div class="dash-shell">
+
+  <!-- ════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════ -->
+  <aside class="dash-sidebar" id="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="sidebar-brand__icon">✂</div>
+      <div class="sidebar-brand__text">Clip<span>Connect</span></div>
+    </div>
+
+    <!-- User snippet -->
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="sidebar-avatar">?</div>
+      <div class="sidebar-user__info">
+        <div class="sidebar-user__name" id="sidebar-name">Loading...</div>
+        <div class="sidebar-user__role">Client Account</div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+
+      <div class="sidebar-nav-section">
+        <div class="sidebar-nav-label">Main</div>
+        <button class="nav-item" data-section="overview">
+          <span class="nav-item__icon">🏠</span>
+          <span class="nav-label">Overview</span>
+        </button>
+        <button class="nav-item" data-section="projects">
+          <span class="nav-item__icon">📁</span>
+          <span class="nav-label">My Projects</span>
+        </button>
+        <button class="nav-item" data-section="browse">
+          <span class="nav-item__icon">🔍</span>
+          <span class="nav-label">Browse Editors</span>
+        </button>
+        <button class="nav-item" data-section="favorites">
+          <span class="nav-item__icon">❤️</span>
+          <span class="nav-label">Favorites</span>
+        </button>
+        <a href="chat.html" class="nav-item" style="text-decoration:none">
+          <span class="nav-item__icon">💬</span>
+          <span class="nav-label">Messages</span>
+        </a>
+      </div>
+
+      <div class="sidebar-nav-section">
+        <div class="sidebar-nav-label">Account</div>
+        <button class="nav-item" data-section="notifications">
+          <span class="nav-item__icon">🔔</span>
+          <span class="nav-label">Notifications</span>
+          <span class="nav-item__badge" id="notif-nav-badge" style="display:none">0</span>
+        </button>
+        <button class="nav-item" data-section="settings">
+          <span class="nav-item__icon">⚙️</span>
+          <span class="nav-label">Account Settings</span>
+        </button>
+      </div>
+
+    </nav>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <button class="nav-item" id="logout-btn">
+        <span class="nav-item__icon">🚪</span>
+        <span class="nav-label">Log Out</span>
+      </button>
+    </div>
+
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <!-- ════════════════════════════════
+       MAIN AREA
+  ════════════════════════════════ -->
+  <div class="dash-main">
+
+    <!-- Topbar -->
+    <header class="dash-topbar">
+      <button class="topbar-menu-btn" id="topbar-menu-btn">☰</button>
+
+      <div class="topbar-title" id="topbar-title">Overview</div>
+
+      <!-- Search -->
+      <div class="topbar-search">
+        <span class="topbar-search__icon">🔍</span>
+        <input type="text" placeholder="Search editors, projects..." id="topbar-search-input">
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <!-- Notification bell -->
+        <div class="topbar-notif" id="notif-bell" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notif-dot"></span>
+        </div>
+
+        <!-- Avatar -->
+        <div class="topbar-avatar" id="topbar-avatar" title="Account">?</div>
+
+        <!-- Quick link to home -->
+        <a href="index.html" class="btn btn-secondary btn-sm" style="flex-shrink:0">Home</a>
+      </div>
+    </header>
+
+    <!-- ════ PAGE CONTENT ════ -->
+    <div class="dash-content">
+
+
+      <!-- ══════════════════════════════════════════
+           OVERVIEW SECTION
+      ══════════════════════════════════════════ -->
+      <section class="dash-section" id="section-overview">
+
+        <!-- Welcome card -->
+        <div class="welcome-card">
+          <div class="welcome-card__left">
+            <div class="welcome-greeting" id="welcome-greeting">Good evening, there!</div>
+            <div class="welcome-subtitle" id="welcome-subtitle">Here's what's happening today.</div>
+
+            <div class="welcome-quick-stats">
+              <div class="welcome-quick-stat">
+                <div class="welcome-quick-stat__value" id="stat-active">—</div>
+                <div class="welcome-quick-stat__label">Active</div>
+              </div>
+              <div class="welcome-quick-stat">
+                <div class="welcome-quick-stat__value" id="stat-completed">—</div>
+                <div class="welcome-quick-stat__label">Completed</div>
+              </div>
+              <div class="welcome-quick-stat">
+                <div class="welcome-quick-stat__value" id="stat-favorites">—</div>
+                <div class="welcome-quick-stat__label">Favorites</div>
+              </div>
+            </div>
+          </div>
+          <div class="welcome-card__right">
+            <div class="welcome-card__art">🎬</div>
+          </div>
+        </div>
+
+        <!-- Stat cards row -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--blue">📁</div>
+            <div class="stat-card__body">
+              <div class="stat-card__value" id="stat-active-card">0</div>
+              <div class="stat-card__label">Active Projects</div>
+              <div class="stat-card__delta stat-card__delta--same">No active projects</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--green">✅</div>
+            <div class="stat-card__body">
+              <div class="stat-card__value" id="stat-completed-card">0</div>
+              <div class="stat-card__label">Completed Projects</div>
+              <div class="stat-card__delta stat-card__delta--same">All time</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--orange">⏳</div>
+            <div class="stat-card__body">
+              <div class="stat-card__value" id="stat-pending-card">0</div>
+              <div class="stat-card__label">Pending Requests</div>
+              <div class="stat-card__delta stat-card__delta--same">Awaiting response</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__icon stat-card__icon--purple">❤️</div>
+            <div class="stat-card__body">
+              <div class="stat-card__value" id="stat-fav-card">0</div>
+              <div class="stat-card__label">Favourite Editors</div>
+              <div class="stat-card__delta stat-card__delta--up">Saved for later</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two-column content -->
+        <div class="content-grid">
+
+          <!-- Recent activity -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><span class="panel-title__icon">📋</span> Recent Activity</div>
+              <button class="panel-action" onclick="gotoSection('projects')">View All →</button>
+            </div>
+            <div class="panel-body">
+              <div class="activity-list" id="activity-list">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar: Favorite editors preview + quick actions -->
+          <div>
+
+            <!-- Quick Actions -->
+            <div class="panel" style="margin-bottom:16px">
+              <div class="panel-header">
+                <div class="panel-title"><span class="panel-title__icon">⚡</span> Quick Actions</div>
+              </div>
+              <div class="panel-body" style="display:flex;flex-direction:column;gap:10px">
+                <button class="btn btn-primary btn-block" onclick="gotoSection('browse')">🔍 Browse Editors</button>
+                <button class="btn btn-secondary btn-block" onclick="gotoSection('projects')">📁 View My Projects</button>
+                <button class="btn btn-secondary btn-block" onclick="gotoSection('favorites')">❤️ My Favourites</button>
+                <button class="btn btn-secondary btn-block" onclick="gotoSection('settings')">⚙️ Account Settings</button>
+              </div>
+            </div>
+
+            <!-- Favourite Editors Preview -->
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title"><span class="panel-title__icon">❤️</span> Favourite Editors</div>
+                <button class="panel-action" onclick="gotoSection('favorites')">See All →</button>
+              </div>
+              <div class="panel-body">
+                <div class="editors-grid" id="fav-editors-overview">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section><!-- /overview -->
+
+
+      <!-- ══════════════════════════════════════════
+           MY PROJECTS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="dash-section" id="section-projects">
+
+        <div class="section-heading">
+          <div>
+            <h2>My Projects</h2>
+            <p>Track all active, completed, and pending video editing projects.</p>
+          </div>
+          <button class="btn btn-primary" onclick="gotoSection('browse')">+ Start New Project</button>
+        </div>
+
+        <!-- Filter row -->
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <select class="form-control" id="proj-filter-status" style="max-width:160px">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="completed">Completed</option>
+            <option value="pending">Pending</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <input type="text" class="form-control" placeholder="Search project name..." id="proj-search" style="max-width:280px">
+        </div>
+
+        <!-- Projects table -->
+        <div class="panel">
+          <div class="projects-table-wrap">
+            <table class="projects-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Project</th>
+                  <th>Editor</th>
+                  <th>Status</th>
+                  <th>Due Date</th>
+                  <th>Budget</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="projects-table-body">
+                <!-- Filled by JS -->
+              </tbody>
+            </table>
+
+            <!-- Empty state -->
+            <div id="projects-empty" style="display:none">
+              <div class="empty-state" style="padding:60px 20px">
+                <div class="empty-state__icon">📭</div>
+                <div class="empty-state__title">No projects yet</div>
+                <div class="empty-state__desc">Once you hire an editor, your projects will appear here. Find talented editors and start creating!</div>
+                <button class="btn btn-primary" onclick="gotoSection('browse')" style="margin-top:4px">Find an Editor</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section><!-- /projects -->
+
+
+      <!-- ══════════════════════════════════════════
+           BROWSE EDITORS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="dash-section" id="section-browse">
+
+        <div class="section-heading">
+          <div>
+            <h2>Browse Editors</h2>
+            <p>Discover talented freelance video editors. Save your favourites to contact later.</p>
+          </div>
+        </div>
+
+        <!-- Filters row -->
+        <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+          <div class="topbar-search" style="width:280px">
+            <span class="topbar-search__icon">🔍</span>
+            <input type="text" placeholder="Search by name, skill..." id="browse-search">
+          </div>
+          <select class="form-control" id="browse-cat" style="max-width:180px">
+            <option value="">All Categories</option>
+            <option value="youtube">YouTube</option>
+            <option value="reels">Reels &amp; Shorts</option>
+            <option value="wedding">Wedding</option>
+            <option value="corporate">Corporate</option>
+            <option value="motion_graphics">Motion Graphics</option>
+            <option value="podcast">Podcast</option>
+            <option value="ecommerce">E-Commerce</option>
+            <option value="documentary">Documentary</option>
+          </select>
+          <select class="form-control" id="browse-sort" style="max-width:160px">
+            <option value="rating">Top Rated</option>
+            <option value="projects">Most Projects</option>
+            <option value="rate_asc">Price: Low→High</option>
+            <option value="rate_desc">Price: High→Low</option>
+            <option value="newest">Newest</option>
+          </select>
+        </div>
+
+        <!-- Editors grid -->
+        <div class="editors-grid" id="browse-grid">
+          <!-- Rendered by JS -->
+          <div class="skeleton" style="height:220px;border-radius:12px"></div>
+          <div class="skeleton" style="height:220px;border-radius:12px"></div>
+          <div class="skeleton" style="height:220px;border-radius:12px"></div>
+        </div>
+
+      </section><!-- /browse -->
+
+
+      <!-- ══════════════════════════════════════════
+           FAVORITES SECTION
+      ══════════════════════════════════════════ -->
+      <section class="dash-section" id="section-favorites">
+
+        <div class="section-heading">
+          <div>
+            <h2>Favourite Editors</h2>
+            <p>Your saved editors, ready to hire anytime.</p>
+          </div>
+        </div>
+
+        <div class="editors-grid" id="favorites-grid">
+          <div class="skeleton" style="height:220px;border-radius:12px"></div>
+          <div class="skeleton" style="height:220px;border-radius:12px"></div>
+        </div>
+
+      </section><!-- /favorites -->
+
+
+      <!-- ══════════════════════════════════════════
+           NOTIFICATIONS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="dash-section" id="section-notifications">
+
+        <div class="section-heading">
+          <div>
+            <h2>Notifications</h2>
+            <p>Stay updated on project activity and messages.</p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-secondary" id="notif-section-read-all" onclick="document.getElementById('notif-read-all').click()">Mark All Read</button>
+          </div>
+        </div>
+
+        <div id="notif-section-list">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="panel" style="margin-top:24px">
+          <div class="panel-header">
+            <div class="panel-title"><span class="panel-title__icon">🎛️</span> Notification Preferences</div>
+          </div>
+          <div class="panel-body">
+            <div class="notif-pref-row">
+              <div>
+                <div class="notif-pref-row__label">Email Notifications</div>
+                <div class="notif-pref-row__sublabel">Receive project updates via email</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-email" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="notif-pref-row">
+              <div>
+                <div class="notif-pref-row__label">Project Alerts</div>
+                <div class="notif-pref-row__sublabel">Status changes, deliverables, deadlines</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-projects" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="notif-pref-row">
+              <div>
+                <div class="notif-pref-row__label">Messages</div>
+                <div class="notif-pref-row__sublabel">Notify when editors send you messages</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-messages" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </section><!-- /notifications -->
+
+
+      <!-- ══════════════════════════════════════════
+           ACCOUNT SETTINGS SECTION
+      ══════════════════════════════════════════ -->
+      <section class="dash-section" id="section-settings">
+
+        <div class="section-heading">
+          <div>
+            <h2>Account Settings</h2>
+            <p>Update your personal information and preferences.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+
+          <!-- Profile Info -->
+          <div class="settings-panel">
+            <div class="settings-panel-header">
+              <span class="settings-panel-header__icon">👤</span>
+              <h3>Personal Information</h3>
+            </div>
+            <div class="settings-panel-body">
+
+              <!-- Avatar upload -->
+              <div class="avatar-settings">
+                <div class="avatar-settings__circle" id="acc-avatar-circle">?</div>
+                <div>
+                  <p style="font-size:0.82rem;color:#64748B;margin-bottom:8px">JPG, PNG, WebP — Max 5 MB</p>
+                  <div class="avatar-settings__upload">
+                    <input type="file" id="acc-avatar-input" accept=".jpg,.jpeg,.png,.webp">
+                    <button class="btn btn-secondary btn-sm">Change Photo</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="acc-name">Full Name</label>
+                <input type="text" id="acc-name" class="form-control" placeholder="Your full name">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-email">Email Address</label>
+                <input type="email" id="acc-email" class="form-control" placeholder="your@email.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-phone">Phone Number</label>
+                <input type="tel" id="acc-phone" class="form-control" placeholder="+91 98765 43210">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-company">Company / Brand Name</label>
+                <input type="text" id="acc-company" class="form-control" placeholder="Your company or brand (optional)">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-bio">About / Bio</label>
+                <textarea id="acc-bio" class="form-control" rows="3" placeholder="Tell editors what kind of content you create..."></textarea>
+              </div>
+
+              <button class="btn btn-primary btn-block" id="acc-save-btn">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- Location + Security -->
+          <div>
+
+            <!-- Location -->
+            <div class="settings-panel" style="margin-bottom:20px">
+              <div class="settings-panel-header">
+                <span class="settings-panel-header__icon">📍</span>
+                <h3>Location</h3>
+              </div>
+              <div class="settings-panel-body">
+                <div class="form-group">
+                  <label class="form-label" for="acc-city">City</label>
+                  <input type="text" id="acc-city" class="form-control" placeholder="Mumbai">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="acc-country">Country</label>
+                  <input type="text" id="acc-country" class="form-control" placeholder="India">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="acc-website">Website</label>
+                  <input type="url" id="acc-website" class="form-control" placeholder="https://yourwebsite.com">
+                </div>
+              </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="settings-panel">
+              <div class="settings-panel-header">
+                <span class="settings-panel-header__icon">🔒</span>
+                <h3>Change Password</h3>
+              </div>
+              <div class="settings-panel-body">
+                <div class="form-group">
+                  <label class="form-label" for="acc-cur-pwd">Current Password</label>
+                  <input type="password" id="acc-cur-pwd" class="form-control" placeholder="Your current password">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="acc-new-pwd">New Password</label>
+                  <input type="password" id="acc-new-pwd" class="form-control" placeholder="Min. 8 characters">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="acc-confirm-pwd">Confirm New Password</label>
+                  <input type="password" id="acc-confirm-pwd" class="form-control" placeholder="Repeat new password">
+                </div>
+                <button class="btn btn-secondary btn-block" id="pwd-save-btn">Change Password</button>
+              </div>
+            </div>
+
+            <!-- Danger zone -->
+            <div class="danger-panel" style="margin-top:20px">
+              <h3>⚠️ Danger Zone</h3>
+              <p>Deleting your account is permanent and cannot be undone. All your project history will be lost.</p>
+              <button class="btn btn-danger btn-sm">Delete Account</button>
+            </div>
+
+          </div>
+
+        </div><!-- /settings-grid -->
+
+      </section><!-- /settings -->
+
+    </div><!-- /dash-content -->
+  </div><!-- /dash-main -->
+
+</div><!-- /dash-shell -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     NOTIFICATION DRAWER (slides in from right)
+════════════════════════════════════════════════════════════ -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<aside class="notif-drawer" id="notif-drawer">
+  <div class="notif-drawer-header">
+    <h2>🔔 Notifications</h2>
+    <button class="notif-drawer-close" id="notif-close">✕</button>
+  </div>
+  <div class="notif-drawer-body">
+    <div id="drawer-notif-list">
+      <div class="skeleton" style="height:70px;border-radius:8px;margin-bottom:10px"></div>
+      <div class="skeleton" style="height:70px;border-radius:8px"></div>
+    </div>
+  </div>
+  <div class="notif-drawer-footer">
+    <button class="btn btn-secondary btn-sm" id="notif-read-all">Mark All Read</button>
+    <button class="btn btn-secondary btn-sm" onclick="gotoSection('notifications');closeDrawer?.()">View All</button>
+  </div>
+</aside>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     CLIENT PROJECT MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="client-project-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;">
+  <div class="modal-content" style="background:var(--bg-card);padding:24px;border-radius:12px;width:100%;max-width:500px;border:1px solid var(--border);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0" id="cpm-title">Project Title</h3>
+      <button onclick="closeClientProjectModal()" style="background:none;border:none;color:var(--text-2);font-size:1.5rem;cursor:pointer">✕</button>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.85rem;color:var(--text-3)">Editor</div>
+      <div style="font-weight:600;" id="cpm-editor">—</div>
+    </div>
+    <div style="display:flex;gap:16px;margin-bottom:16px;">
+      <div>
+        <div style="font-size:0.85rem;color:var(--text-3)">Budget</div>
+        <div id="cpm-budget">—</div>
+      </div>
+      <div>
+        <div style="font-size:0.85rem;color:var(--text-3)">Status</div>
+        <div id="cpm-status">—</div>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:0.85rem;color:var(--text-3)">Project Files</div>
+      <div id="cpm-files" style="padding:10px;background:var(--bg-body);border-radius:8px;font-size:0.9rem;margin-top:4px;">No files attached.</div>
+    </div>
+
+    <!-- Review Section (only visible if UNDER_REVIEW) -->
+    <div id="cpm-review-section" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+      <h4 style="margin:0 0 10px 0;">Review Submission</h4>
+      <textarea id="cpm-review-notes" class="form-control" rows="3" placeholder="Add revision notes here if requesting changes..."></textarea>
+      <div style="display:flex;gap:10px;margin-top:12px;">
+        <button class="btn btn-primary" id="cpm-approve-btn" style="flex:1">Approve Project</button>
+        <button class="btn btn-danger" id="cpm-revision-btn" style="flex:1">Request Revision</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/hire-modal.js?v=2"></script>
+<script src="js/dashboard.js?v=2"></script>
+
+<script>
+  // Sync stat cards with welcome card values
+  const syncStats = new MutationObserver(() => {
+    const v = (id) => document.getElementById(id)?.textContent || '0';
+    document.getElementById('stat-active-card')?.textContent != null
+      && (document.getElementById('stat-active-card').textContent = v('stat-active'));
+    document.getElementById('stat-completed-card')?.textContent != null
+      && (document.getElementById('stat-completed-card').textContent = v('stat-completed'));
+    document.getElementById('stat-pending-card')?.textContent != null
+      && (document.getElementById('stat-pending-card').textContent = v('stat-pending'));
+    document.getElementById('stat-fav-card')?.textContent != null
+      && (document.getElementById('stat-fav-card').textContent = v('stat-favorites'));
+  });
+  ['stat-active','stat-completed','stat-pending','stat-favorites'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) syncStats.observe(el, { childList: true, characterData: true, subtree: true });
+  });
+
+  // Topbar search redirects to browse section
+  document.getElementById('topbar-search-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const q = e.target.value.trim();
+      if (q) {
+        document.getElementById('browse-search').value = q;
+        gotoSection('browse');
+        document.getElementById('browse-search').dispatchEvent(new Event('input'));
+      }
+    }
+  });
+
+  // Expose closeDrawer globally for drawer footer button
+  function closeDrawer() {
+    document.getElementById('notif-drawer')?.classList.remove('open');
+    document.getElementById('drawer-overlay')?.classList.remove('visible');
+  }
+</script>
+
+<script src="js/notifications.js?v=2"></script>
+</body>
+</html>

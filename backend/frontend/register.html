@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>Create Account – ClipConnect | Join as Client or Editor</title>
+    <meta name="description"
+        content="Create your free ClipConnect account. Join as a client to hire talented video editors, or sign up as an editor to showcase your skills and find projects." />
+    <meta name="robots" content="noindex, nofollow" /> <!-- Auth pages not indexed -->
+
+    <!-- Fonts (loaded via main.css @import) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+
+    <!-- Tab Icon (emoji fallback) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
+</head>
+
+<body>
+
+<!-- ============================================================
+     AUTH PAGE — SPLIT LAYOUT
+============================================================ -->
+<main class="auth-page" role="main">
+
+    <!-- ====================================================
+         LEFT PANEL — Decorative Brand Side
+    ==================================================== -->
+    <aside class="auth-left" aria-hidden="true">
+        <div class="auth-left-inner">
+
+            <!-- Brand -->
+            <div class="auth-brand">
+                <div class="auth-brand-logo">🎬</div>
+                <div>
+                    <div class="auth-brand-name">ClipConnect</div>
+                    <p class="auth-brand-tagline">Where great editors meet great clients</p>
+                </div>
+            </div>
+
+            <!-- Feature highlights -->
+            <div class="auth-features">
+                <div class="auth-feature-item">
+                    <div class="auth-feature-icon purple">🎥</div>
+                    <div class="auth-feature-text">
+                        <h4>Top-Tier Editors</h4>
+                        <p>Access 2,000+ vetted freelance video editors across every niche</p>
+                    </div>
+                </div>
+                <div class="auth-feature-item">
+                    <div class="auth-feature-icon cyan">⚡</div>
+                    <div class="auth-feature-text">
+                        <h4>Fast Turnaround</h4>
+                        <p>Get your projects delivered in 24 hours to 7 days, guaranteed</p>
+                    </div>
+                </div>
+                <div class="auth-feature-item">
+                    <div class="auth-feature-icon gold">🔒</div>
+                    <div class="auth-feature-text">
+                        <h4>Secure Payments</h4>
+                        <p>Escrow-based payments protect both clients and editors</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="auth-stats">
+                <div class="auth-stat-item">
+                    <div class="auth-stat-value">2K+</div>
+                    <div class="auth-stat-label">Editors</div>
+                </div>
+                <div class="auth-stat-item" style="border-left:1px solid var(--border-subtle);border-right:1px solid var(--border-subtle);padding:0 20px;">
+                    <div class="auth-stat-value">15K+</div>
+                    <div class="auth-stat-label">Projects</div>
+                </div>
+                <div class="auth-stat-item">
+                    <div class="auth-stat-value">4.9★</div>
+                    <div class="auth-stat-label">Rating</div>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- ====================================================
+         RIGHT PANEL — Registration Form
+    ==================================================== -->
+    <section class="auth-right">
+        <div class="auth-form-wrapper">
+
+            <!-- Mobile-only logo (shown when left panel is hidden) -->
+            <div class="auth-form-header">
+                <a href="index.html" class="auth-logo-mobile" aria-label="ClipConnect Home">
+                    <div style="width:36px;height:36px;background:var(--gradient-button);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🎬</div>
+                    <span style="font-family:var(--font-display);font-weight:800;font-size:20px;background:var(--gradient-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">ClipConnect</span>
+                </a>
+
+                <h1>Create your account</h1>
+                <p>Already have an account? <a href="login.html">Sign in here</a></p>
+            </div>
+
+            <!-- Status Message (shown on success/error) -->
+            <div id="auth-message" class="auth-message" role="alert" aria-live="polite"></div>
+
+            <!-- Registration Form -->
+            <form id="register-form" class="auth-form" novalidate aria-label="Registration Form">
+
+                <!-- Full Name -->
+                <div class="form-group">
+                    <label for="full_name" class="form-label">
+                        Full Name <span class="required" aria-label="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="text"
+                            id="full_name"
+                            name="full_name"
+                            class="form-input"
+                            placeholder="e.g. Alex Johnson"
+                            autocomplete="name"
+                            required
+                            aria-required="true"
+                            aria-describedby="full_name-error"
+                        />
+                        <!-- Icon -->
+                        <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <p id="full_name-error" class="form-error" role="alert" style="display:none;"></p>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        Email Address <span class="required" aria-label="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-input"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                            aria-required="true"
+                            aria-describedby="email-error"
+                        />
+                        <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <p id="email-error" class="form-error" role="alert" style="display:none;"></p>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        Password <span class="required" aria-label="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-input"
+                            placeholder="Min. 8 characters"
+                            autocomplete="new-password"
+                            required
+                            aria-required="true"
+                            aria-describedby="password-error strength-label"
+                        />
+                        <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <!-- Show/Hide Password Toggle -->
+                        <button type="button"
+                            class="input-action"
+                            data-toggle-password="password"
+                            aria-label="Toggle password visibility">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <!-- Password Strength Meter -->
+                    <div class="password-strength" id="password-strength-container">
+                        <div class="strength-bar" id="strength-bar" aria-hidden="true">
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                            <div class="strength-segment"></div>
+                        </div>
+                        <span class="strength-label" id="strength-label" aria-live="polite"></span>
+                    </div>
+                    <p id="password-error" class="form-error" role="alert" style="display:none;"></p>
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label class="form-label">
+                        I want to <span class="required" aria-label="required">*</span>
+                    </label>
+
+                    <div class="role-selector" role="radiogroup" aria-label="Select your account type">
+                        <!-- Client Role Card -->
+                        <label class="role-card" id="role-card-client" for="role-client">
+                            <input
+                                type="radio"
+                                id="role-client"
+                                name="role"
+                                value="client"
+                                aria-label="I am a Client looking to hire editors"
+                            />
+                            <div class="role-check" aria-hidden="true">✓</div>
+                            <div class="role-card-icon">💼</div>
+                            <div class="role-card-title">Hire Editors</div>
+                            <div class="role-card-desc">I need video editing done for my projects</div>
+                        </label>
+
+                        <!-- Editor Role Card -->
+                        <label class="role-card" id="role-card-editor" for="role-editor">
+                            <input
+                                type="radio"
+                                id="role-editor"
+                                name="role"
+                                value="editor"
+                                aria-label="I am a Video Editor looking for work"
+                            />
+                            <div class="role-check" aria-hidden="true">✓</div>
+                            <div class="role-card-icon">🎬</div>
+                            <div class="role-card-title">Offer Services</div>
+                            <div class="role-card-desc">I'm a video editor looking for clients</div>
+                        </label>
+                    </div>
+                    <p id="role-error" class="form-error" role="alert" style="display:none;"></p>
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="form-group" style="flex-direction:row;align-items:flex-start;gap:10px;margin-bottom:20px;">
+                    <input
+                        type="checkbox"
+                        id="terms"
+                        name="terms"
+                        style="margin-top:2px;accent-color:var(--color-primary);width:15px;height:15px;flex-shrink:0;"
+                        required
+                    />
+                    <label for="terms" style="font-size:12px;color:var(--text-muted);cursor:pointer;line-height:1.5;">
+                        I agree to ClipConnect's
+                        <a href="#" style="color:var(--color-primary-light);">Terms of Service</a>
+                        and
+                        <a href="#" style="color:var(--color-primary-light);">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                    type="submit"
+                    id="register-submit-btn"
+                    class="btn btn-primary auth-submit-btn"
+                    aria-label="Create your ClipConnect account">
+                    <span class="btn-text">Create Account</span>
+                </button>
+
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider" aria-hidden="true">Already a member?</div>
+
+            <!-- Login Link -->
+            <div class="auth-footer-text">
+                <a href="login.html" class="btn btn-secondary w-full"
+                    style="justify-content:center;">
+                    Sign In Instead
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+</main>
+
+<!-- Scripts -->
+<script src="js/api.js?v=2"></script>
+<script src="js/auth.js?v=2"></script>
+
+<script>
+    /**
+     * Make role-card labels behave correctly (JS fallback for :has() CSS)
+     * Safari < 15 doesn't support :has(), so we also use JS to toggle the class.
+     */
+    document.querySelectorAll('.role-card input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+            this.closest('.role-card').classList.add('selected');
+        });
+    });
+</script>
+
+</body>
+</html>

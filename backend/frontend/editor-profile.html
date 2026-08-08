@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor Profile — ClipConnect</title>
+  <meta name="description" content="View this freelance video editor's profile, portfolio, skills, and pricing on ClipConnect.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/profile.css">
+
+  <style>
+    /* ── Navbar override for transparent on profile ── */
+    .navbar { background: rgba(10,10,15,0.85); backdrop-filter: blur(20px); }
+
+    /* ── Error state ── */
+    #profile-error {
+      display: none;
+      max-width: 500px; margin: 120px auto; text-align: center; padding: 0 24px;
+    }
+    #profile-error h2 { font-size: 1.5rem; color: #E2E8F0; margin-bottom: 12px; }
+    #profile-error p  { color: #64748B; }
+
+    /* ── Profile content hidden until loaded ── */
+    .profile-content { display: none; }
+
+    /* ── Hire card floating ── */
+    .hire-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .hire-card__price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #A78BFA, #67E8F9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+    .hire-card__label { font-size: 0.8rem; color: #64748B; margin-bottom: 20px; }
+    .hire-card__btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #7C3AED, #5B21B6);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .hire-card__btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 12px 40px rgba(124,58,237,0.4); }
+
+    /* ── Sticky sidebar on scroll ── */
+    @media (min-width: 900px) {
+      .profile-sidebar { position: sticky; top: 90px; align-self: start; }
+    }
+
+    /* ── Section header ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .section-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #E2E8F0;
+    }
+    .section-icon { font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════
+       NAVBAR
+  ════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-container">
+      <a href="index.html" class="navbar-brand">
+        <span class="brand-icon">✂</span>
+        <span>Clip<span class="brand-accent">Connect</span></span>
+      </a>
+
+      <div class="navbar-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="#portfolio-images" class="nav-link">Portfolio</a>
+      </div>
+
+      <div class="navbar-actions">
+        <a href="edit-profile.html" class="btn-outline" id="edit-profile-btn" style="display:none">Edit My Profile</a>
+        <button class="btn-secondary" id="chat-btn">💬 Chat</button>
+        <button class="btn-primary" id="hire-btn">✨ Hire This Editor</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════
+       ERROR STATE
+  ════════════════════════════════════════ -->
+  <div id="profile-error">
+    <div style="font-size:4rem;margin-bottom:16px">😕</div>
+    <h2>Editor Not Found</h2>
+    <p>This editor profile doesn't exist or has been removed.</p>
+    <a href="index.html" class="btn btn-primary" style="margin-top:24px;display:inline-flex">Back to Home</a>
+  </div>
+
+  <!-- ════════════════════════════════════════
+       PROFILE CONTENT (hidden until JS loads)
+  ════════════════════════════════════════ -->
+  <div class="profile-content">
+
+    <!-- ── Cover Banner ── -->
+    <div class="profile-banner" id="profile-banner">
+      <div class="profile-banner__overlay"></div>
+    </div>
+
+    <!-- ── Profile Header (avatar + name) ── -->
+    <div class="profile-header">
+      <div class="profile-header__inner">
+
+        <!-- Avatar -->
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" id="profile-avatar">
+            <!-- JS fills: either <img> or initials text -->
+          </div>
+          <div class="profile-verified-badge" id="verified-badge" style="display:none" title="Verified Editor">✓</div>
+        </div>
+
+        <!-- Name + meta -->
+        <div class="profile-header__info">
+          <h1 class="profile-name" id="profile-name">Loading...</h1>
+          <div class="profile-username" id="profile-username"></div>
+          <div class="profile-tagline" id="profile-tagline"></div>
+          <div style="margin-top:10px" id="availability-badge"></div>
+        </div>
+
+        <!-- Header actions -->
+        <div class="profile-header__actions">
+          <button class="btn btn-secondary btn-lg" id="chat-btn-top">
+            💬 Chat
+          </button>
+          <button class="btn btn-primary btn-lg" id="hire-btn-top">
+            ✨ Hire This Editor
+          </button>
+        </div>
+
+      </div>
+    </div><!-- /profile-header -->
+
+
+    <!-- ── Two-Column Layout ── -->
+    <div class="profile-layout">
+
+      <!-- ════ SIDEBAR ════ -->
+      <aside class="profile-sidebar">
+
+        <!-- Hire Card -->
+        <div class="hire-card">
+          <div class="hire-card__price" id="hire-price">Contact for Price</div>
+          <div class="hire-card__label">Starting from</div>
+          <button class="hire-card__btn" id="hire-btn-card">
+            ✨ Hire This Editor
+          </button>
+          <a href="#portfolio-images" class="btn btn-secondary" style="width:100%;display:flex;justify-content:center">View Portfolio</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat__value" id="stat-rating">—</div>
+            <div class="profile-stat__label">Rating</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat__value" id="stat-reviews">0</div>
+            <div class="profile-stat__label">Reviews</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat__value" id="stat-projects">0</div>
+            <div class="profile-stat__label">Projects</div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="p-card">
+          <div class="p-card__title">Skills</div>
+          <div class="skill-tags" id="skills-list"></div>
+        </div>
+
+        <!-- Software -->
+        <div class="p-card">
+          <div class="p-card__title">Software Used</div>
+          <ul class="software-list" id="software-list"></ul>
+        </div>
+
+        <!-- Languages -->
+        <div class="p-card">
+          <div class="p-card__title">Languages</div>
+          <div class="language-list" id="lang-list"></div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="p-card">
+          <div class="p-card__title">Pricing</div>
+          <div id="pricing-block"></div>
+        </div>
+
+        <!-- Social Links -->
+        <div class="p-card">
+          <div class="p-card__title">Find Me Online</div>
+          <div class="social-links" id="social-links"></div>
+        </div>
+
+        <!-- Resume -->
+        <div class="p-card">
+          <div class="p-card__title">Resume / CV</div>
+          <div id="resume-section"></div>
+        </div>
+
+      </aside><!-- /sidebar -->
+
+      <!-- ════ MAIN ════ -->
+      <main class="profile-main">
+
+        <!-- About -->
+        <div class="p-card">
+          <div class="section-header">
+            <span class="section-icon">👤</span>
+            <h3>About Me</h3>
+          </div>
+          <p class="profile-bio" id="profile-bio"></p>
+          <div class="profile-meta" id="profile-meta"></div>
+        </div>
+
+        <!-- Rating -->
+        <div class="p-card">
+          <div class="section-header">
+            <span class="section-icon">⭐</span>
+            <h3>Rating & Reviews</h3>
+          </div>
+          <div id="star-rating"></div>
+          <p style="color:#475569;font-size:0.85rem;margin-top:12px">Reviews will appear here after completed projects.</p>
+        </div>
+
+        <!-- Portfolio Images -->
+        <div class="p-card" id="portfolio-images">
+          <div class="section-header">
+            <span class="section-icon">🖼️</span>
+            <h3>Portfolio Images</h3>
+          </div>
+          <div class="portfolio-grid" id="portfolio-img-grid"></div>
+        </div>
+
+        <!-- Portfolio Videos -->
+        <div class="p-card">
+          <div class="section-header">
+            <span class="section-icon">🎬</span>
+            <h3>Portfolio Videos</h3>
+          </div>
+          <div class="video-list" id="portfolio-video-list"></div>
+        </div>
+
+        <!-- Client Reviews -->
+        <div class="p-card" id="reviews-section">
+          <div class="section-header">
+            <span class="section-icon">⭐</span>
+            <h3>Client Reviews</h3>
+          </div>
+          <div id="reviews-list"></div>
+        </div>
+
+        <!-- Similar Editors -->
+        <div class="p-card" id="similar-editors-section">
+          <div class="section-header">
+            <span class="section-icon">👥</span>
+            <h3>Similar Editors</h3>
+          </div>
+          <div class="similar-editors-grid" id="similar-editors-grid"></div>
+        </div>
+
+      </main><!-- /main -->
+
+    </div><!-- /profile-layout -->
+
+  </div><!-- /profile-content -->
+
+  <script src="js/hire-modal.js?v=2"></script>
+  <script src="js/profile.js?v=2"></script>
+  <script>
+    // Update hire-price once JS loads profile data (called from profile.js render)
+    // Small shim so renderPricing can also update the sidebar hire card
+    const _origRenderPricing = window.renderPricing;
+    function updateHireCardPrice(p) {
+      const el = document.getElementById('hire-price');
+      if (!el) return;
+      if (p.hourly_rate) {
+        el.textContent = '₹' + Number(p.hourly_rate).toLocaleString('en-IN') + ' / hr';
+      } else if (p.fixed_price_from) {
+        el.textContent = '₹' + Number(p.fixed_price_from).toLocaleString('en-IN') + '+';
+      } else {
+        el.textContent = 'Contact for Price';
+      }
+    }
+    // profile.js calls renderPricing(p); we patch it here to also update hire card
+    const _origRender = window.renderPricing;
+  </script>
+</body>
+</html>

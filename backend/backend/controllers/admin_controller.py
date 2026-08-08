@@ -79,11 +79,7 @@ def get_admin_dashboard_stats(current_user: dict):
     monthly_revenue = sum(float(tx.amount) for tx in deposits if tx.created_at and tx.created_at >= thirty_days_ago)
 
     completed_payments = Payment.query.filter_by(status='released').count()
-    
-    # Calculate pending payments as the sum of budgets of all active projects (accepted project money)
-    active_projs = Project.query.filter(Project.status.in_([ProjectStatus.IN_PROGRESS, ProjectStatus.UNDER_REVIEW, ProjectStatus.REVISION_REQUESTED])).all()
-    pending_payments = sum(float(p.budget) for p in active_projs if p.budget)
-
+    pending_payments = Payment.query.filter_by(status='escrow_held').count()
     refunds = Payment.query.filter_by(status='refunded').count()
 
     # Growth rate (users created in past 30 days)

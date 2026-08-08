@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Details — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/project-details.css" />
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="dashboard.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div>Clip<span class="accent">Connect</span></div>
+    </a>
+    <a href="dashboard.html" class="btn btn-secondary">← Back to Dashboard</a>
+  </nav>
+
+  <main class="container" id="project-details">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <h1 id="project-title" class="title" style="margin:0;">Loading Project...</h1>
+      <button class="btn btn-secondary" id="save-btn" style="display: none;">⭐ Save Project</button>
+    </div>
+    <div class="client-info" id="client-info" style="margin-top: 0.5rem;"></div>
+    <section class="card description">
+      <h2>Description</h2>
+      <p id="project-description">Loading details...</p>
+    </section>
+    <section class="grid">
+      <div class="card meta">
+        <h3>Budget</h3>
+        <p id="project-budget">-</p>
+      </div>
+      <div class="card meta">
+        <h3>Timeline</h3>
+        <p id="project-deadline">-</p>
+      </div>
+      <div class="card meta">
+        <h3>Status</h3>
+        <p id="project-status">-</p>
+      </div>
+    </section>
+    <section class="card attachments" id="project-attachments">
+      <h2>Attachments</h2>
+      <ul id="attachment-list"><li>No attachments provided.</li></ul>
+    </section>
+    <section class="card skills" id="project-skills">
+      <h2>Required Skills</h2>
+      <div id="skill-tags" class="tag-container"></div>
+    </section>
+    <section class="card software" id="project-software">
+      <h2>Preferred Software</h2>
+      <div id="software-tags" class="tag-container"></div>
+    </section>
+    <section class="card proposals">
+      <h2>Proposals</h2>
+      <p id="proposal-count">0 proposals submitted</p>
+      <button class="btn btn-primary" id="apply-btn">Apply to Project</button>
+    </section>
+  </main>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/project-details.js?v=2"></script>
+</body>
+</html>

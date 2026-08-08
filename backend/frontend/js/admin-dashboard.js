@@ -73,7 +73,7 @@ async function loadAdminStats() {
             setTxt('c-rev-total', formatCurrency(stats.total_revenue));
             setTxt('c-rev-today', formatCurrency(stats.today_revenue));
             setTxt('c-rev-month', formatCurrency(stats.monthly_revenue));
-            setTxt('c-pay-pending', formatCurrency(stats.pending_payments));
+            setTxt('c-pay-pending', stats.pending_payments || 0);
             setTxt('c-pay-completed', stats.completed_payments || 0);
 
             // 2. Recent Platform Activity

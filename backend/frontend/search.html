@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Editors — ClipConnect</title>
+  <meta name="description" content="Search for freelance video editors by name, skill, software, category or city on ClipConnect.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/search.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════ -->
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">
+    <div class="nav-brand__icon">✂</div>
+    <div class="nav-brand__name">Clip<span>Connect</span></div>
+  </a>
+  <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
+    <a href="browse-editors.html"
+       style="font-size:.83rem;color:var(--text-3);font-weight:500;text-decoration:none;transition:color .15s"
+       onmouseover="this.style.color='var(--text-1)'"
+       onmouseout="this.style.color='var(--text-3)'">
+      🗂 Browse All
+    </a>
+    <div id="nav-right" class="nav-right">
+      <a href="login.html"    class="btn btn-outline btn-sm">Log In</a>
+      <a href="register.html" class="btn btn-primary  btn-sm">Join Free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     HERO SEARCH
+══════════════════════════════════════════ -->
+<div class="search-hero">
+  <h1 class="search-hero__title">Find Your Perfect <span>Video Editor</span></h1>
+  <p class="search-hero__sub">Search by name, skill, software, category or city — instantly</p>
+
+  <!-- Big Search Bar -->
+  <div class="search-bar-wrap">
+    <div class="search-bar">
+      <span class="search-bar__icon">🔍</span>
+      <input
+        type="text"
+        id="search-input"
+        placeholder="e.g. &quot;Color Grading&quot;, &quot;Premiere Pro&quot;, &quot;Mumbai&quot;, &quot;Sarah&quot;…"
+        autocomplete="off"
+        spellcheck="false">
+      <button class="search-bar__clear" id="search-clear" title="Clear">✕</button>
+      <button class="search-btn" onclick="runSearch()">Search</button>
+    </div>
+
+    <!-- Autocomplete dropdown -->
+    <div class="suggestions-dropdown" id="suggestions-dd"></div>
+  </div>
+
+  <!-- Search type tabs -->
+  <div class="search-tabs">
+    <button class="search-tab active" data-type="all">🌐 All Fields</button>
+    <button class="search-tab" data-type="name">👤 By Name</button>
+    <button class="search-tab" data-type="skills">🛠 By Skill</button>
+    <button class="search-tab" data-type="software">💻 By Software</button>
+    <button class="search-tab" data-type="category">🎬 By Category</button>
+    <button class="search-tab" data-type="city">📍 By City</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     HINTS (shown when no search yet)
+══════════════════════════════════════════ -->
+<div id="search-hints" class="search-hints">
+
+  <!-- Recent searches -->
+  <div class="hint-section" id="recent-section" style="display:none">
+    <h3>🕐 Recent Searches</h3>
+    <div class="hint-chips" id="recent-chips"></div>
+  </div>
+
+  <!-- Popular skills -->
+  <div class="hint-section">
+    <h3>🔥 Popular Skills</h3>
+    <div class="hint-chips">
+      <div class="hint-chip" onclick="setTabAndSearch('skills','Color Grading')"><span>🎨</span>Color Grading</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','Motion Graphics')"><span>✨</span>Motion Graphics</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','VFX')"><span>💫</span>VFX</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','Sound Design')"><span>🎵</span>Sound Design</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','Color Correction')"><span>🌈</span>Color Correction</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','Transitions')"><span>🔀</span>Transitions</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','Subtitles')"><span>📝</span>Subtitles</div>
+      <div class="hint-chip" onclick="setTabAndSearch('skills','2D Animation')"><span>🖼</span>2D Animation</div>
+    </div>
+  </div>
+
+  <!-- Popular software -->
+  <div class="hint-section">
+    <h3>💻 Popular Software</h3>
+    <div class="hint-chips">
+      <div class="hint-chip" onclick="setTabAndSearch('software','Adobe Premiere Pro')"><span>🎞</span>Adobe Premiere Pro</div>
+      <div class="hint-chip" onclick="setTabAndSearch('software','DaVinci Resolve')"><span>🎨</span>DaVinci Resolve</div>
+      <div class="hint-chip" onclick="setTabAndSearch('software','After Effects')"><span>✨</span>After Effects</div>
+      <div class="hint-chip" onclick="setTabAndSearch('software','Final Cut Pro')"><span>🍎</span>Final Cut Pro</div>
+      <div class="hint-chip" onclick="setTabAndSearch('software','Capcut')"><span>📱</span>CapCut</div>
+      <div class="hint-chip" onclick="setTabAndSearch('software','Vegas Pro')"><span>🎬</span>Vegas Pro</div>
+      <div class="hint-chip" onclick="setTabAndSearch('software','Blender')"><span>🌀</span>Blender</div>
+    </div>
+  </div>
+
+  <!-- Popular cities -->
+  <div class="hint-section">
+    <h3>📍 Browse by City</h3>
+    <div class="hint-chips">
+      <div class="hint-chip" onclick="setTabAndSearch('city','Mumbai')"><span>🏙</span>Mumbai</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Delhi')"><span>🏛</span>Delhi</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Bangalore')"><span>💻</span>Bangalore</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Chennai')"><span>🌊</span>Chennai</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Hyderabad')"><span>🏰</span>Hyderabad</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Kolkata')"><span>🎭</span>Kolkata</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Pune')"><span>🌿</span>Pune</div>
+      <div class="hint-chip" onclick="setTabAndSearch('city','Ahmedabad')"><span>🏟</span>Ahmedabad</div>
+    </div>
+  </div>
+
+  <!-- Category cards -->
+  <div class="hint-section">
+    <h3>🎬 Browse by Category</h3>
+    <div class="category-grid">
+      <div class="cat-card" data-cat="youtube">
+        <span class="cat-card__emoji">▶️</span>
+        <div class="cat-card__name">YouTube</div>
+      </div>
+      <div class="cat-card" data-cat="reels">
+        <span class="cat-card__emoji">🎬</span>
+        <div class="cat-card__name">Reels &amp; Shorts</div>
+      </div>
+      <div class="cat-card" data-cat="wedding">
+        <span class="cat-card__emoji">💍</span>
+        <div class="cat-card__name">Wedding</div>
+      </div>
+      <div class="cat-card" data-cat="corporate">
+        <span class="cat-card__emoji">💼</span>
+        <div class="cat-card__name">Corporate</div>
+      </div>
+      <div class="cat-card" data-cat="motion_graphics">
+        <span class="cat-card__emoji">✨</span>
+        <div class="cat-card__name">Motion Graphics</div>
+      </div>
+      <div class="cat-card" data-cat="podcast">
+        <span class="cat-card__emoji">🎙️</span>
+        <div class="cat-card__name">Podcast</div>
+      </div>
+      <div class="cat-card" data-cat="ecommerce">
+        <span class="cat-card__emoji">🛒</span>
+        <div class="cat-card__name">E-Commerce</div>
+      </div>
+      <div class="cat-card" data-cat="documentary">
+        <span class="cat-card__emoji">🎥</span>
+        <div class="cat-card__name">Documentary</div>
+      </div>
+      <div class="cat-card" data-cat="other">
+        <span class="cat-card__emoji">🎞️</span>
+        <div class="cat-card__name">Other</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /search-hints -->
+
+<!-- ══════════════════════════════════════════
+     RESULTS AREA
+══════════════════════════════════════════ -->
+<div id="results-area" class="results-area">
+
+  <div class="results-header">
+    <div>
+      <div class="results-title" id="results-title">Results</div>
+      <div class="results-meta"  id="results-meta"></div>
+    </div>
+    <div class="results-controls">
+      <a href="browse-editors.html" class="btn btn-outline btn-sm">All Editors →</a>
+      <select class="sort-select" id="sort-select">
+        <option value="rating">⭐ Top Rated</option>
+        <option value="projects">✅ Most Projects</option>
+        <option value="rate_asc">💰 Price: Low → High</option>
+        <option value="rate_desc">💰 Price: High → Low</option>
+        <option value="newest">🆕 Newest</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="editors-grid" id="results-grid"></div>
+  <div class="pagination" id="pagination"></div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="js/search.js?v=2"></script>
+<script>
+  // Helper: set tab + run search from hints
+  window.setTabAndSearch = function(type, q) {
+    state.searchType = type;
+    state.query = q;
+    const input = document.getElementById('search-input');
+    if (input) input.value = q;
+    updateTabUI();
+    updateClearBtn();
+    runSearch(q);
+  };
+</script>
+
+</body>
+</html>

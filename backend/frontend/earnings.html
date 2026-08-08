@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Earnings & Payments — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/earnings.css">
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div class="nav-brand__name">Clip<span>Connect</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-outline btn-sm">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="earnings-container">
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 2rem; color: #fff;">💸 Financial Overview</h1>
+      <p style="color: #9ca3af; margin-top: 4px;">Track earnings, escrow holdings, and download project invoices</p>
+    </div>
+
+    <div class="earnings-grid">
+      <div class="earnings-card">
+        <h3>Total Balance / Revenue</h3>
+        <div class="earnings-amount" id="total-revenue">₹0</div>
+      </div>
+      <div class="earnings-card">
+        <h3>Funds in Escrow</h3>
+        <div class="earnings-amount" id="escrow-funds" style="color: #f59e0b;">₹0</div>
+      </div>
+      <div class="earnings-card">
+        <h3>Pending Payouts</h3>
+        <div class="earnings-amount" id="pending-payouts" style="color: #10b981;">₹0</div>
+      </div>
+    </div>
+
+    <div class="transactions-section">
+      <h2 style="color: #fff; font-size: 1.3rem;">Transaction History</h2>
+      <div style="overflow-x: auto;">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Project</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-tbody">
+            <tr><td colspan="6" style="text-align: center; color: #9ca3af;">Loading transactions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/earnings.js?v=2"></script>
+</body>
+</html>

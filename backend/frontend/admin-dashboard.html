@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    .admin-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .stats-grid-large { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: var(--bg-card, #1e1e2d); padding: 16px; border-radius: 12px; border: 1px solid var(--border, #333); }
+    .stat-title { font-size: 0.85rem; color: #9ca3af; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    
+    .admin-section { background: var(--bg-card, #1e1e2d); padding: 20px; border-radius: 12px; border: 1px solid var(--border, #333); margin-bottom: 24px; }
+    .admin-section h2 { margin-top: 0; margin-bottom: 16px; font-size: 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+    
+    .search-filter-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-filter-bar input, .search-filter-bar select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border, #333); background: var(--bg-body, #151521); color: #fff; }
+    
+    table.admin-table { width: 100%; border-collapse: collapse; text-align: left; }
+    table.admin-table th, table.admin-table td { padding: 12px; border-bottom: 1px solid var(--border, #333); font-size: 0.9rem; }
+    table.admin-table th { color: #9ca3af; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; }
+    
+    .activity-feed, .notif-feed { max-height: 400px; overflow-y: auto; padding-right: 10px; }
+    .feed-item { padding: 12px 0; border-bottom: 1px solid var(--border, #333); }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-time { font-size: 0.75rem; color: #9ca3af; margin-bottom: 4px; }
+    .feed-title { font-weight: 600; font-size: 0.9rem; color: #e5e7eb; }
+    .feed-desc { font-size: 0.85rem; color: #9ca3af; margin-top: 4px; }
+    
+    .css-chart { display: flex; align-items: flex-end; height: 150px; gap: 8px; padding-top: 20px; }
+    .css-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .css-bar { width: 100%; background: #6366f1; border-radius: 4px 4px 0 0; transition: height 0.5s ease; min-height: 5px; }
+    .css-bar-label { font-size: 0.7rem; color: #9ca3af; margin-top: 8px; text-align: center; }
+    .css-bar-val { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; }
+    
+    /* Grid layouts */
+    .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    @media (max-width: 992px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    
+    /* Modal */
+    .admin-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .admin-modal-content { background: var(--bg-card, #1e1e2d); padding: 24px; border-radius: 12px; max-width: 600px; width: 90%; border: 1px solid var(--border, #333); max-height: 90vh; overflow-y: auto; }
+    .modal-close { float: right; cursor: pointer; font-size: 1.5rem; background: none; border: none; color: #9ca3af; }
+    .modal-detail-row { display: flex; padding: 12px 0; border-bottom: 1px solid var(--border, #333); }
+    .modal-detail-label { width: 150px; color: #9ca3af; font-weight: 600; font-size: 0.9rem; }
+    .modal-detail-val { flex: 1; color: #e5e7eb; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div class="nav-brand__name">Clip<span>Connect</span> <small style="color:#ef4444;font-size:0.5em;vertical-align:super;">ADMIN</small></div>
+    </a>
+    <div class="nav-links">
+      <a href="dashboard.html" class="btn btn-outline btn-sm">Exit Admin</a>
+    </div>
+  </nav>
+
+  <div class="admin-container">
+    <div class="admin-header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1>🛡️ Admin Dashboard</h1>
+        <p style="color: #9ca3af; margin-top: 4px;">Live platform oversight and analytics</p>
+      </div>
+      <div>
+        <span id="last-updated" style="font-size: 0.8rem; color: #9ca3af;">Last updated: Just now</span>
+      </div>
+    </div>
+
+    <!-- 1. Dashboard Summary Cards -->
+    <div class="stats-grid-large" id="admin-summary-cards">
+      <div class="stat-card"><div class="stat-title">Total Users</div><div class="stat-value" id="c-users">--</div></div>
+      <div class="stat-card"><div class="stat-title">Clients</div><div class="stat-value" id="c-clients">--</div></div>
+      <div class="stat-card"><div class="stat-title">Editors / Active</div><div class="stat-value" id="c-editors">--</div></div>
+      <div class="stat-card"><div class="stat-title">Total Projects</div><div class="stat-value" id="c-projects">--</div></div>
+      <div class="stat-card"><div class="stat-title">Completed Projects</div><div class="stat-value" id="c-completed-proj">--</div></div>
+      <div class="stat-card"><div class="stat-title">Hire Requests (Pend / Acc)</div><div class="stat-value" id="c-hires">--</div></div>
+      <div class="stat-card"><div class="stat-title">Total Revenue</div><div class="stat-value" id="c-rev-total">--</div></div>
+      <div class="stat-card"><div class="stat-title">Total Transactions</div><div class="stat-value" id="c-tx-total">--</div></div>
+    </div>
+
+    <!-- 8. Revenue Overview Cards -->
+    <div class="stats-grid-large" style="grid-template-columns: repeat(4, 1fr);" id="admin-revenue-cards">
+      <div class="stat-card" style="border-left: 4px solid #10b981;"><div class="stat-title">Today's Revenue</div><div class="stat-value" id="c-rev-today">--</div></div>
+      <div class="stat-card" style="border-left: 4px solid #3b82f6;"><div class="stat-title">Monthly Revenue</div><div class="stat-value" id="c-rev-month">--</div></div>
+      <div class="stat-card" style="border-left: 4px solid #f59e0b;"><div class="stat-title">Pending Payments</div><div class="stat-value" id="c-pay-pending">--</div></div>
+      <div class="stat-card" style="border-left: 4px solid #8b5cf6;"><div class="stat-title">Completed Payments</div><div class="stat-value" id="c-pay-completed">--</div></div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Left Column -->
+      <div class="dash-col">
+        <!-- 3. Ongoing Projects -->
+        <div class="admin-section">
+          <h2>Ongoing Projects</h2>
+          
+          <!-- 10. Search & Filters -->
+          <div class="search-filter-bar">
+            <input type="text" id="filter-proj-name" placeholder="Search project title...">
+            <input type="text" id="filter-proj-client" placeholder="Client name...">
+            <select id="filter-proj-status">
+              <option value="">All Statuses</option>
+              <option value="in_progress">In Progress</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Client</th>
+                  <th>Editor</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="tb-projects">
+                <tr><td colspan="7">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 5. Hire Requests -->
+        <div class="admin-section">
+          <h2>Hire Requests</h2>
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Client</th>
+                  <th>Editor</th>
+                  <th>Status</th>
+                  <th>Sent Date</th>
+                  <th>Action Date</th>
+                </tr>
+              </thead>
+              <tbody id="tb-hires">
+                <tr><td colspan="6">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- 6. Editor Responses -->
+        <div class="admin-section">
+          <h2>Editor Responses & Stats</h2>
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Editor</th>
+                  <th>Assigned</th>
+                  <th>Accepted</th>
+                  <th>Declined</th>
+                  <th>Completed</th>
+                  <th>Accept Rate</th>
+                  <th>Completion Rate</th>
+                </tr>
+              </thead>
+              <tbody id="tb-editors">
+                <tr><td colspan="7">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- 7. Client Activity -->
+        <div class="admin-section">
+          <h2>Client Activity</h2>
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Client Name</th>
+                  <th>Projects Posted</th>
+                  <th>Active Projects</th>
+                  <th>Completed</th>
+                  <th>Total Spent</th>
+                </tr>
+              </thead>
+              <tbody id="tb-clients">
+                <tr><td colspan="5">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- User Management (Existing) -->
+        <div class="admin-section">
+          <h2>User Management</h2>
+          <div style="overflow-x: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="tb-users">
+                <tr><td colspan="6">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Right Column -->
+      <div class="dash-col">
+        <!-- 12. Charts (Project Status & Growth) -->
+        <div class="admin-section">
+          <h2>Projects by Status</h2>
+          <div class="css-chart" id="chart-proj-status">
+            <!-- CSS bars injected via JS -->
+          </div>
+        </div>
+
+        <!-- 2. Recent Platform Activity -->
+        <div class="admin-section">
+          <h2>Recent Platform Activity</h2>
+          <div class="activity-feed" id="feed-activity">
+            Loading...
+          </div>
+        </div>
+
+        <!-- 9. Notifications Panel -->
+        <div class="admin-section">
+          <h2>System Notifications</h2>
+          <div class="notif-feed" id="feed-notifs">
+            Loading...
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. View Details Modal -->
+  <div class="admin-modal" id="details-modal">
+    <div class="admin-modal-content">
+      <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+      <h2 id="mdl-title" style="margin-top:0; border-bottom:1px solid #333; padding-bottom:12px; margin-bottom:16px;">Project Details</h2>
+      <div id="mdl-body"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js?v=2"></script>
+  <script src="js/admin-dashboard.js?v=3"></script>
+</body>
+</html>

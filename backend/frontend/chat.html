@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messages — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/navbar.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <!-- SocketIO Client Library loaded at end of body to prevent render blocking -->
+</head>
+<body>
+
+  <nav class="navbar" id="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div class="nav-brand__name">Clip<span>Connect</span></div>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="dashboard.html" class="btn btn-outline btn-sm">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="chat-container">
+    <!-- Sidebar / Conversations List -->
+    <div class="chat-sidebar">
+      <div class="chat-sidebar-header">
+        <h2>Messages</h2>
+        <input type="text" id="chat-search" class="chat-search-input" placeholder="Search conversations...">
+      </div>
+      <div class="chat-contacts-list" id="chat-contacts-list">
+        <div style="padding: 20px; text-align: center; color: #9ca3af;">Loading chats...</div>
+      </div>
+    </div>
+
+    <!-- Main Chat Display -->
+    <div class="chat-main">
+      <div class="chat-header" id="chat-header">
+        <div class="chat-header-user" id="chat-header-user">
+          <div class="contact-avatar" id="active-avatar">?</div>
+          <div>
+            <h3 id="active-user-name">Select a Conversation</h3>
+            <span class="chat-status-text" id="active-user-status">Offline</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-messages-area" id="chat-messages-area">
+        <div class="chat-empty-state">
+          <div style="font-size: 3rem; margin-bottom: 12px;">💬</div>
+          <h3>Your Messages</h3>
+          <p>Select a contact from the left panel to start chatting.</p>
+        </div>
+      </div>
+
+      <div class="typing-indicator" id="typing-indicator" style="display: none;">
+        Contact is typing...
+      </div>
+
+      <div class="chat-input-container">
+        <label style="cursor: pointer;" title="Attach File">
+          <span style="font-size: 1.3rem;">📎</span>
+          <input type="file" id="chat-file-input" style="display: none;" multiple>
+        </label>
+        <input type="text" id="chat-input" class="chat-input" placeholder="Type a message..." disabled>
+        <button id="chat-send-btn" class="chat-btn" disabled>Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="js/api.js?v=2"></script>
+  <script src="js/navbar.js?v=2"></script>
+  <script src="js/chat.js?v=2"></script>
+</body>
+</html>

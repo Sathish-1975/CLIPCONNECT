@@ -1,4 +1,5 @@
 # ============================================================
+<<<<<<< HEAD
 # ClipConnect - .gitignore
 # ============================================================
 
@@ -6,11 +7,22 @@
 .env
 .env.local
 .env.production
+=======
+# ClipConnect - Root .gitignore
+# ============================================================
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.production
+*.env
+>>>>>>> 72015dc7d85db471199e112e2e1eaba778e3e216
 
 # --- Python Virtual Environment ---
 venv/
 env/
 .venv/
+<<<<<<< HEAD
 ENV/
 
 # --- Python Cache ---
@@ -38,6 +50,24 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+=======
+backend/venv/
+backend/env/
+
+# --- Python Cache ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+*$py.class
+
+# --- Distribution / Packaging ---
+dist/
+build/
+*.egg-info/
+.eggs/
+>>>>>>> 72015dc7d85db471199e112e2e1eaba778e3e216
 
 # --- Database ---
 *.db
@@ -49,6 +79,7 @@ wheels/
 *.swp
 *.swo
 *~
+<<<<<<< HEAD
 
 # --- OS Generated ---
 .DS_Store
@@ -57,12 +88,33 @@ wheels/
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+=======
+.DS_Store
+>>>>>>> 72015dc7d85db471199e112e2e1eaba778e3e216
 Thumbs.db
 
 # --- Logs ---
 *.log
 logs/
 
+<<<<<<< HEAD
 # --- Upload directories ---
 uploads/
 static/uploads/
+=======
+# --- Node (future frontend builds) ---
+node_modules/
+npm-debug.log*
+
+# --- Uploads ---
+backend/uploads/
+frontend/images/uploads/
+
+# --- Flask-Migrate (keep structure but not data) ---
+# backend/migrations/versions/*.py  # Uncomment if needed
+
+# --- OS ---
+.DS_Store
+ehthumbs.db
+Desktop.ini
+>>>>>>> 72015dc7d85db471199e112e2e1eaba778e3e216

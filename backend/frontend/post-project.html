@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Editing Project — ClipConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/post-project.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="dashboard.html" class="nav-brand">
+      <div class="nav-brand__icon">✂</div>
+      <div>Clip<span>Connect</span></div>
+    </a>
+    <a href="dashboard.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.82rem;">← Back to Dashboard</a>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="post-container">
+    <div class="post-header">
+      <h1 id="page-title">Post a New Video Editing Project</h1>
+      <p>Fill out the project details to connect with elite freelance video editors</p>
+    </div>
+
+    <div class="form-card">
+      <form id="project-form" onsubmit="return false;">
+        <div class="form-grid">
+
+          <!-- Project Title -->
+          <div class="form-group full-width">
+            <label>Project Title <span class="req">*</span></label>
+            <input type="text" id="inp-title" class="form-control" placeholder="e.g. Need High Energy Tech Review Editor for YouTube Channel" required>
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label>Category <span class="req">*</span></label>
+            <select id="inp-category" class="form-control">
+              <option value="youtube">▶️ YouTube Editor</option>
+              <option value="reels">🎬 Instagram Reels / Shorts</option>
+              <option value="gaming">🎮 Gaming Editor</option>
+              <option value="wedding">💍 Wedding Editor</option>
+              <option value="podcast">🎙️ Podcast Editor</option>
+              <option value="corporate">💼 Corporate Video</option>
+              <option value="motion_graphics">✨ Motion Graphics</option>
+              <option value="vfx">💫 VFX Artist</option>
+              <option value="colorist">🎨 Colorist</option>
+              <option value="documentary">🎥 Documentary Editor</option>
+              <option value="short_film">🎞️ Short Film Editor</option>
+              <option value="thumbnail_designer">🖼️ Thumbnail Designer</option>
+              <option value="audio_editor">🎵 Audio Editor</option>
+              <option value="subtitle_editor">📝 Subtitle Editor</option>
+              <option value="ai_video_editor">🤖 AI Video Editor</option>
+            </select>
+          </div>
+
+          <!-- Number of Editors Required -->
+          <div class="form-group">
+            <label>Editors Required</label>
+            <input type="number" id="inp-editors-count" class="form-control" value="1" min="1" max="10">
+          </div>
+
+          <!-- Description -->
+          <div class="form-group full-width">
+            <label>Project Description <span class="req">*</span></label>
+            <textarea id="inp-description" class="form-control" placeholder="Describe scope, style, pacing, story structure, and key requirements..." required></textarea>
+          </div>
+
+          <!-- Budget & Type -->
+          <div class="form-group">
+            <label>Budget (₹) <span class="req">*</span></label>
+            <input type="number" id="inp-budget" class="form-control" placeholder="e.g. 5000" min="0" required>
+          </div>
+
+          <div class="form-group">
+            <label>Budget Type</label>
+            <select id="inp-budget-type" class="form-control">
+              <option value="fixed">Fixed Price</option>
+              <option value="hourly">Hourly Rate</option>
+            </select>
+          </div>
+
+          <!-- Deadline -->
+          <div class="form-group">
+            <label>Deadline</label>
+            <input type="date" id="inp-deadline" class="form-control">
+          </div>
+
+          <!-- Visibility -->
+          <div class="form-group">
+            <label>Project Visibility</label>
+            <select id="inp-visibility" class="form-control">
+              <option value="public">🌐 Public (Visible in Marketplace)</option>
+              <option value="private">🔒 Private (Invite Only)</option>
+            </select>
+          </div>
+
+          <!-- Required Skills -->
+          <div class="form-group full-width">
+            <label>Required Skills</label>
+            <div class="tag-input-wrap">
+              <input type="text" id="inp-skill" class="form-control" placeholder="e.g. Sound Design, Color Grading, Jump Cuts">
+              <button type="button" class="btn btn-secondary" id="btn-add-skill">Add</button>
+            </div>
+            <div class="tag-container" id="skill-tags"></div>
+          </div>
+
+          <!-- Preferred Software -->
+          <div class="form-group full-width">
+            <label>Preferred Software</label>
+            <div class="tag-input-wrap">
+              <input type="text" id="inp-sw" class="form-control" placeholder="e.g. Premiere Pro, DaVinci Resolve, After Effects">
+              <button type="button" class="btn btn-secondary" id="btn-add-sw">Add</button>
+            </div>
+            <div class="tag-container" id="sw-tags"></div>
+          </div>
+
+          <!-- Reference Links -->
+          <div class="form-group full-width">
+            <label>Reference Video Links</label>
+            <div class="tag-input-wrap">
+              <input type="url" id="inp-ref-link" class="form-control" placeholder="https://youtube.com/watch?v=...">
+              <button type="button" class="btn btn-secondary" id="btn-add-ref">Add Link</button>
+            </div>
+            <div class="tag-container" id="ref-tags"></div>
+          </div>
+
+          <!-- Sample Files Upload -->
+          <div class="form-group full-width">
+            <label>Sample Files / Raw Footage Links</label>
+            <div class="upload-dropzone" id="file-dropzone">
+              <div style="font-size: 1.8rem;">📁</div>
+              <p>Click to upload reference footage or sample files</p>
+              <input type="file" id="file-input" style="display: none;">
+            </div>
+            <div class="file-list" id="file-list"></div>
+          </div>
+
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="btn-draft">💾 Save Draft</button>
+          <button type="button" class="btn btn-primary" id="btn-publish">🚀 Publish Project</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/post-project.js?v=2"></script>
+</body>
+</html>
