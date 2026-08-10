@@ -605,6 +605,10 @@
         <div style="font-size:0.85rem;color:var(--text-3)">Status</div>
         <div id="cpm-status">—</div>
       </div>
+      <div>
+        <div style="font-size:0.85rem;color:var(--text-3)">Payment</div>
+        <div id="cpm-payment-status" class="status-badge status-badge--pending" style="font-size:0.75rem; padding: 2px 6px; display:inline-block; margin-top:2px;">—</div>
+      </div>
     </div>
     <div style="margin-bottom:16px;">
       <div style="font-size:0.85rem;color:var(--text-3)">Project Files</div>
@@ -614,9 +618,9 @@
     <!-- Review Section (only visible if UNDER_REVIEW) -->
     <div id="cpm-review-section" style="display:none;margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
       <h4 style="margin:0 0 10px 0;">Review Submission</h4>
-      <textarea id="cpm-review-notes" class="form-control" rows="3" placeholder="Add revision notes here if requesting changes..."></textarea>
+      <textarea id="cpm-review-notes" class="form-control" rows="3" placeholder="Add your accept message here, or revision notes if requesting changes..."></textarea>
       <div style="display:flex;gap:10px;margin-top:12px;">
-        <button class="btn btn-primary" id="cpm-approve-btn" style="flex:1">Approve Project</button>
+        <button class="btn btn-primary" id="cpm-pay-btn" style="flex:1">Pay Now</button>
         <button class="btn btn-danger" id="cpm-revision-btn" style="flex:1">Request Revision</button>
       </div>
     </div>

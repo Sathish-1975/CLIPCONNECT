@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 payments.forEach(p => {
                     if (p.status === 'escrow_held') escrowAmt += p.amount;
-                    if (p.status === 'released') totalRev += p.amount;
+                    if (p.status === 'released' || p.status === 'paid') totalRev += p.amount;
                 });
 
                 document.getElementById('total-revenue').textContent = `₹${totalRev.toLocaleString()}`;
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <td style="font-weight: bold; color: #fff;">₹${p.amount.toLocaleString()}</td>
                         <td>
                             <span class="${p.status === 'escrow_held' ? 'badge-escrow' : 'badge-completed'}">
-                                ${p.status === 'escrow_held' ? 'Escrow Held' : 'Released'}
+                                ${p.status === 'escrow_held' ? 'Escrow Held' : (p.status === 'paid' ? 'Paid' : 'Released')}
                             </span>
                         </td>
                         <td>${new Date(p.created_at).toLocaleDateString()}</td>

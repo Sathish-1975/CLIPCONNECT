@@ -55,7 +55,7 @@ def get_admin_dashboard_stats(current_user: dict):
     total_users    = User.query.count()
     total_clients  = User.query.filter_by(role=UserRole.CLIENT).count()
     total_editors  = User.query.filter_by(role=UserRole.EDITOR).count()
-    active_editors = EditorProfile.query.filter(EditorProfile.availability != AvailabilityStatus.UNAVAILABLE).count()
+    active_editors = EditorProfile.query.filter(EditorProfile.availability_status != AvailabilityStatus.ON_VACATION).count()
 
     total_projects     = Project.query.filter(Project.status != ProjectStatus.DELETED).count()
     active_projects    = Project.query.filter(Project.status.in_([ProjectStatus.IN_PROGRESS, ProjectStatus.UNDER_REVIEW, ProjectStatus.REVISION_REQUESTED])).count()
@@ -69,16 +69,16 @@ def get_admin_dashboard_stats(current_user: dict):
     deposits = Transaction.query.filter_by(type='deposit', status='success').all()
     total_revenue = sum(float(tx.amount) for tx in deposits)
     
-    payments = Payment.query.filter(Payment.status.in_(['escrow_held', 'released'])).all()
+    payments = Payment.query.filter(Payment.status.in_(['escrow_held', 'paid', 'released'])).all()
     total_transactions = len(payments)
 
-    today = datetime.now(timezone.utc).date()
+    today = datetime.utcnow().date()
     today_revenue = sum(float(tx.amount) for tx in deposits if tx.created_at and tx.created_at.date() == today)
 
-    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
     monthly_revenue = sum(float(tx.amount) for tx in deposits if tx.created_at and tx.created_at >= thirty_days_ago)
 
-    completed_payments = Payment.query.filter_by(status='released').count()
+    completed_payments = Payment.query.filter(Payment.status.in_(['paid', 'released'])).count()
     
     # Calculate pending payments as the sum of budgets of all active projects (accepted project money)
     active_projs = Project.query.filter(Project.status.in_([ProjectStatus.IN_PROGRESS, ProjectStatus.UNDER_REVIEW, ProjectStatus.REVISION_REQUESTED])).all()
@@ -106,9 +106,9 @@ def get_admin_dashboard_stats(current_user: dict):
         if pr.status == 'invited':
             activities.append({'type': "Client hired an editor", 'text': f"Hire request sent for Project #{pr.project_id}.", 'date': pr.created_at})
         elif pr.status == 'accepted':
-            activities.append({'type': "Editor accepted request", 'text': f"Editor accepted hire request for Project #{pr.project_id}.", 'date': pr.updated_at or pr.created_at})
+            activities.append({'type': "Editor accepted request", 'text': f"Editor accepted hire request for Project #{pr.project_id}.", 'date': pr.created_at})
         elif pr.status == 'rejected':
-            activities.append({'type': "Editor declined request", 'text': f"Editor declined hire request for Project #{pr.project_id}.", 'date': pr.updated_at or pr.created_at})
+            activities.append({'type': "Editor declined request", 'text': f"Editor declined hire request for Project #{pr.project_id}.", 'date': pr.created_at})
 
     activities.sort(key=lambda x: (x['date'] or datetime.min).replace(tzinfo=timezone.utc).timestamp(), reverse=True)
     recent_activity = activities[:15]
@@ -129,7 +129,7 @@ def get_admin_dashboard_stats(current_user: dict):
             'title': n.title,
             'message': n.message,
             'created_at': n.created_at.isoformat() if n.created_at else None,
-            'type': n.type_str,
+            'type': n.type,
             'is_read': n.is_read
         })
 
@@ -200,7 +200,7 @@ def list_all_users(current_user: dict):
         if u.role == UserRole.EDITOR:
             if u.editor_profile:
                 ud['is_verified'] = u.editor_profile.is_verified
-                ud['current_availability'] = u.editor_profile.availability.value
+                ud['current_availability'] = u.editor_profile.availability_status.value if u.editor_profile.availability_status else 'unknown'
             
             proposals = Proposal.query.filter_by(editor_id=u.id).all()
             assigned = len(proposals)
@@ -336,8 +336,8 @@ def list_all_proposals(current_user: dict):
         is_acc = p.status == 'accepted'
         is_rej = p.status == 'rejected'
         # Approximate update date for accept/reject
-        d['accepted_date'] = p.updated_at.isoformat() if is_acc and p.updated_at else None
-        d['declined_date'] = p.updated_at.isoformat() if is_rej and p.updated_at else None
+        d['accepted_date'] = p.created_at.isoformat() if is_acc and p.created_at else None
+        d['declined_date'] = p.created_at.isoformat() if is_rej and p.created_at else None
         
         d['current_progress'] = p.project.status.value if p.project and p.project.status else 'Unknown'
         p_data.append(d)

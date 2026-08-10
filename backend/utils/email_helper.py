@@ -139,7 +139,7 @@ def send_hire_request_email(editor_email: str, editor_name: str, client_name: st
 
 
 def send_payment_success_email(client_email: str, client_name: str, project_title: str, amount: float, invoice_num: str):
-    subject = f"✅ Payment Confirmed (Invoice #{invoice_num})"
+    subject = f"Payment Confirmed (Invoice #{invoice_num})"
     html = f"""
     <h2>Payment Successful!</h2>
     <p>Hi {client_name}, your payment of <strong>₹{amount:,.2f}</strong> for project <strong>"{project_title}"</strong> has been safely deposited into ClipConnect Escrow.</p>

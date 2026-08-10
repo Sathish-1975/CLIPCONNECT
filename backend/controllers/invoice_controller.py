@@ -94,7 +94,7 @@ def generate_invoice_html(current_user: dict, project_id: int):
     Returns an HTML page that acts as the invoice. 
     Can be printed to PDF by the user.
     """
-    payment = Payment.query.filter_by(project_id=project_id, status='released').first()
+    payment = Payment.query.filter(Payment.project_id==project_id, Payment.status.in_(['paid', 'released'])).first()
     if not payment:
         return "<h1>Payment record not found</h1>", 404
         

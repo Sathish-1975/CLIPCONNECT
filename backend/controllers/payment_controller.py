@@ -65,11 +65,15 @@ def create_payment_order(current_user: dict):
 
     if not project.hired_editor_id:
         return error_response(message="No editor has been hired for this project yet.", status_code=400)
+        
+    if project.status != ProjectStatus.UNDER_REVIEW:
+        return error_response(message="Project must be submitted for review before payment.", status_code=400)
+        
+    if project.payment_status == 'paid':
+        return error_response(message="This project has already been paid for.", status_code=400)
 
-    try:
-        payment_amount = float(amount or project.budget)
-    except (ValueError, TypeError):
-        payment_amount = float(project.budget)
+    # Force the backend amount to prevent frontend manipulation
+    payment_amount = float(project.budget)
 
     # Generate Order ID (using Razorpay client if configured, else mock sandbox ID)
     razorpay_order_id = f"order_{uuid.uuid4().hex[:14]}"
@@ -110,7 +114,7 @@ def verify_payment(current_user: dict):
     """
     POST /api/payments/verify
     Body: { razorpay_order_id, razorpay_payment_id, razorpay_signature }
-    Verifies signature, holds funds in Escrow, sets project to IN_PROGRESS, generates invoice.
+    Verifies signature, processes final payment, sets project to COMPLETED, generates invoice.
     """
     data = request.get_json(silent=True) or {}
     order_id   = data.get('razorpay_order_id')
@@ -140,36 +144,73 @@ def verify_payment(current_user: dict):
     try:
         payment.razorpay_payment_id = payment_id
         payment.razorpay_signature  = signature or 'mock_signature'
-        payment.status              = 'escrow_held'
+        payment.status              = 'paid'
+        payment.paid_at             = datetime.now(timezone.utc)
+
+        # Calculate Revenue & Create Ledger entries
+        commission_pct = current_app.config.get('PLATFORM_COMMISSION', 0.10)
+        budget = float(payment.amount)
+        editor_earnings = budget * (1 - commission_pct)
 
         # Record deposit transaction
-        tx = Transaction(
+        tx_deposit = Transaction(
             payment_id=payment.id,
             type='deposit',
-            amount=payment.amount,
+            amount=budget,
             status='success',
-            notes='Client deposit held in Escrow'
+            notes='Client payment received'
         )
-        db.session.add(tx)
+        db.session.add(tx_deposit)
+
+        # Record payout transaction
+        tx_payout = Transaction(
+            payment_id=payment.id,
+            type='payout',
+            amount=editor_earnings,
+            status='success',
+            notes='Editor earnings payout'
+        )
+        db.session.add(tx_payout)
 
         # Generate Invoice
         inv = Invoice(
             payment_id=payment.id,
             client_id=payment.client_id,
             editor_id=payment.editor_id,
-            amount=payment.amount
+            amount=payment.amount,
+            pdf_url=f"/api/invoices/{payment.id}/download"
         )
         db.session.add(inv)
 
-        # Update Project Status to IN_PROGRESS & timeline
+        # Update Project Status to COMPLETED & payment_status to paid
         project = Project.query.get(payment.project_id)
         if project:
-            project.status = ProjectStatus.IN_PROGRESS
+            project.status = ProjectStatus.COMPLETED
+            project.payment_status = 'paid'
             project.add_timeline_event(
-                status_str='in_progress',
-                title='Escrow Payment Deposited',
-                note=f"₹{payment.amount:,.2f} deposited into Escrow. Project work active."
+                status_str='completed',
+                title='Payment Successful & Project Completed 🎉',
+                note=f"₹{payment.amount:,.2f} paid successfully. Project closed."
             )
+            
+            accept_message_text = data.get('accept_message')
+            if accept_message_text:
+                from models.message_model import Message
+                new_msg = Message(
+                    sender_id=payment.client_id,
+                    receiver_id=payment.editor_id,
+                    project_id=project.id,
+                    content=accept_message_text,
+                    message_type='text'
+                )
+                db.session.add(new_msg)
+
+        # Update Editor Wallet (EditorProfile)
+        from models.editor_profile_model import EditorProfile
+        editor_profile = EditorProfile.query.filter_by(user_id=payment.editor_id).first()
+        if editor_profile:
+            editor_profile.completed_projects = (editor_profile.completed_projects or 0) + 1
+            editor_profile.total_earnings = float(editor_profile.total_earnings or 0.0) + editor_earnings
 
         db.session.commit()
 
@@ -186,15 +227,15 @@ def verify_payment(current_user: dict):
 
         create_notification(
             user_id=payment.editor_id,
-            title="💰 Payment Deposited into Escrow",
-            message=f"Client deposited ₹{payment.amount:,.2f} for '{project.title if project else 'Project'}'. You can begin work!",
-            type_str="general",
+            title="🎉 Payment Received & Project Completed!",
+            message=f"Client paid ₹{payment.amount:,.2f} for '{project.title if project else 'Project'}'. Earnings updated!",
+            type_str="project_completed",
             related_project_id=payment.project_id
         )
 
         return success_response(
             data={'payment': payment.to_dict(), 'invoice': inv.to_dict()},
-            message="Payment verified! Escrow funds held and project is now active."
+            message="Payment verified! Project is now completed and paid."
         )
     except Exception as e:
         db.session.rollback()
@@ -282,7 +323,7 @@ def get_payment_history(current_user: dict):
 
     pay_data = [p.to_dict() for p in payments]
 
-    total_spent_or_earned = sum(p['amount'] for p in pay_data if p['status'] in ('escrow_held', 'released'))
+    total_spent_or_earned = sum(p['amount'] for p in pay_data if p['status'] in ('escrow_held', 'paid', 'released'))
     pending_escrow = sum(p['amount'] for p in pay_data if p['status'] == 'escrow_held')
 
     return success_response(

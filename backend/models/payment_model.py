@@ -42,6 +42,7 @@ class Payment(db.Model):
 
     created_at          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at          = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+    paid_at             = db.Column(db.DateTime(timezone=True), nullable=True)
 
     # Relationships
     project      = db.relationship('Project', backref=db.backref('payments', lazy='dynamic'))
@@ -63,6 +64,7 @@ class Payment(db.Model):
             'status':              self.status,
             'created_at':          self.created_at.isoformat() if self.created_at else None,
             'updated_at':          self.updated_at.isoformat() if self.updated_at else None,
+            'paid_at':             self.paid_at.isoformat() if self.paid_at else None,
             'project_title':       self.project.title if self.project else None,
             'client_name':         self.client.full_name if self.client else None,
             'editor_name':         self.editor.full_name if self.editor else None,

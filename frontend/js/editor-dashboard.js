@@ -643,6 +643,18 @@ async function openEditorProjectModal(projectId) {
   setTxt('epm-deadline', project.due_date ? fmtDate(project.due_date) : (project.deadline ? fmtDate(project.deadline) : '—'));
   setTxt('epm-skills', project.required_skills?.join(', ') || '—');
   setTxt('epm-status', project.status.replace('_', ' ').toUpperCase());
+  
+  const paymentStatusEl = document.getElementById('epm-payment-status');
+  if (paymentStatusEl) {
+    const payStatus = project.payment_status || 'pending';
+    paymentStatusEl.textContent = payStatus.toUpperCase();
+    paymentStatusEl.className = `status-badge status-badge--${payStatus === 'paid' ? 'completed' : (payStatus === 'failed' ? 'cancelled' : 'pending')}`;
+    paymentStatusEl.style.fontSize = '0.75rem';
+    paymentStatusEl.style.padding = '2px 6px';
+    paymentStatusEl.style.display = 'inline-block';
+    paymentStatusEl.style.marginTop = '2px';
+  }
+
   setTxt('epm-desc', project.description || 'No description provided.');
 
   const filesContainer = document.getElementById('epm-files');

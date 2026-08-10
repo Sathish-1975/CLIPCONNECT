@@ -89,6 +89,7 @@ class Project(db.Model):
     editors_required   = db.Column(db.Integer, nullable=False, default=1)
     hired_editor_id    = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='SET NULL'), nullable=True, index=True, comment='Editor hired for this project')
     status             = db.Column(db.Enum(ProjectStatus, native_enum=False), nullable=False, default=ProjectStatus.PUBLISHED)
+    payment_status     = db.Column(db.String(50), nullable=False, default='pending') # pending, processing, paid, failed
 
     created_at         = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at         = db.Column(db.DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
@@ -130,6 +131,7 @@ class Project(db.Model):
             'visibility':          self.visibility.value if self.visibility else 'public',
             'editors_required':    self.editors_required,
             'status':              self.status.value if self.status else 'published',
+            'payment_status':      self.payment_status,
             'created_at':          self.created_at.isoformat() if self.created_at else None,
             'updated_at':          self.updated_at.isoformat() if self.updated_at else None,
         }

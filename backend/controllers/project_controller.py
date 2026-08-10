@@ -843,6 +843,7 @@ def editor_submit_project(current_user: dict, project_id: int):
         # Update Timeline
         project.add_timeline_event('under_review', "Project Submitted", f"Editor submitted work for review. Notes: {notes}")
         project.status = ProjectStatus.UNDER_REVIEW
+        project.payment_status = 'pending'
 
         db.session.commit()
 
@@ -865,107 +866,11 @@ def editor_submit_project(current_user: dict, project_id: int):
 def client_approve_project(current_user: dict, project_id: int):
     """
     POST /api/projects/<id>/approve
-    Client approves the submitted project.
-    Changes status to COMPLETED, notifies editor, records revenue.
+    Deprecated in favor of the payment flow.
     """
-    from utils.notification_helper import create_notification
-    from models.payment_model import Payment, Transaction
-    from datetime import datetime, timezone
-
-    if current_user.get('role') != 'client':
-        return error_response(message="Only clients can approve projects.", status_code=403)
-
-    project = Project.query.get(project_id)
-    if not project or project.status == ProjectStatus.DELETED:
-        return error_response(message="Project not found.", status_code=404)
-
-    if project.client_id != current_user['user_id']:
-        return error_response(message="You can only approve your own projects.", status_code=403)
-
-    if project.status != ProjectStatus.UNDER_REVIEW:
-        return error_response(message="Project must be submitted for review first.", status_code=400)
-
-    try:
-        project.status = ProjectStatus.COMPLETED
-        project.add_timeline_event('completed', "Project Approved", "Client approved the final submission.")
-        
-        # Calculate Revenue & Create Ledger entries
-        existing_payment = Payment.query.filter_by(project_id=project_id, editor_id=project.hired_editor_id).first()
-        
-        commission_pct = current_app.config.get('PLATFORM_COMMISSION', 0.10)
-        budget = float(project.budget) if project.budget else 0.0
-        editor_earnings = budget * (1 - commission_pct)
-
-        payment_id = None
-        if existing_payment:
-            existing_payment.status = 'released'
-            tx = Transaction(payment_id=existing_payment.id, type='release', amount=existing_payment.amount, status='success', notes="Project completed & funds released")
-            db.session.add(tx)
-            payment_id = existing_payment.id
-        else:
-            new_payment = Payment(
-                project_id=project_id,
-                client_id=project.client_id,
-                editor_id=project.hired_editor_id,
-                amount=editor_earnings, # Log the editor's payout
-                currency='INR',
-                status='released'
-            )
-            db.session.add(new_payment)
-            db.session.flush()
-            payment_id = new_payment.id
-            
-            # The client paid the full budget
-            tx_deposit = Transaction(payment_id=payment_id, type='deposit', amount=budget, status='success', notes="Project total budget")
-            db.session.add(tx_deposit)
-            
-            # Payout to editor
-            tx_payout = Transaction(payment_id=payment_id, type='payout', amount=editor_earnings, status='success', notes="Editor earnings payout")
-            db.session.add(tx_payout)
-
-        # Generate Invoice
-        from models.payment_model import Invoice
-        invoice = Invoice(
-            payment_id=payment_id,
-            client_id=project.client_id,
-            editor_id=project.hired_editor_id,
-            amount=budget,
-            pdf_url=f"/api/invoices/{payment_id}/download"
-        )
-        db.session.add(invoice)
-
-        # Update Editor Wallet (EditorProfile)
-        from models.editor_profile_model import EditorProfile
-        editor_profile = EditorProfile.query.filter_by(user_id=project.hired_editor_id).first()
-        if editor_profile:
-            editor_profile.completed_projects = (editor_profile.completed_projects or 0) + 1
-            editor_profile.total_earnings = float(editor_profile.total_earnings or 0.0) + editor_earnings
-            # You could also increment a monthly_earnings or pending_payments here
-
-        db.session.commit()
-
-        # Notify Editor
-        create_notification(
-            user_id=project.hired_editor_id,
-            title="Project Approved! 🎉",
-            message=f"Client approved your work for '{project.title}'. Payment is being processed.",
-            type_str="project_completed",
-            related_project_id=project_id
-        )
-
-        # Notify Client (Invoice Generated)
-        create_notification(
-            user_id=project.client_id,
-            title="Invoice Generated 🧾",
-            message=f"Invoice for project '{project.title}' is now available.",
-            type_str="general",
-            related_project_id=project_id
-        )
-
-        return success_response(data={'project': project.to_dict(), 'invoice_id': invoice.id}, message="Project approved successfully.")
-
-    except Exception as e:
-        db.session.rollback()
-        return error_response(message=f"Approval failed: {str(e)}", status_code=500)
+    return error_response(
+        message="Direct approval is deprecated. Please use the payment checkout flow (/api/payments/create-order) to approve and pay for the project.",
+        status_code=400
+    )
 
 

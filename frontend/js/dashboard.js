@@ -726,6 +726,17 @@ async function openClientProjectModal(projectId) {
   setTxt('cpm-editor', project.editor_name || 'Not assigned');
   setTxt('cpm-budget', fmtINR(project.price || project.budget_max || project.budget_min || 0));
   setTxt('cpm-status', project.status.replace('_', ' ').toUpperCase());
+  
+  const paymentStatusEl = document.getElementById('cpm-payment-status');
+  if (paymentStatusEl) {
+    const payStatus = project.payment_status || 'pending';
+    paymentStatusEl.textContent = payStatus.toUpperCase();
+    paymentStatusEl.className = `status-badge status-badge--${payStatus === 'paid' ? 'completed' : (payStatus === 'failed' ? 'cancelled' : 'pending')}`;
+    paymentStatusEl.style.fontSize = '0.75rem';
+    paymentStatusEl.style.padding = '2px 6px';
+    paymentStatusEl.style.display = 'inline-block';
+    paymentStatusEl.style.marginTop = '2px';
+  }
 
   const filesContainer = document.getElementById('cpm-files');
   if (project.project_files && project.project_files.length > 0) {
@@ -737,7 +748,8 @@ async function openClientProjectModal(projectId) {
   const reviewSection = document.getElementById('cpm-review-section');
   const invoiceSection = document.getElementById('cpm-invoice-section');
   
-  if (project.status === 'under_review') {
+  const statLower = project.status ? project.status.toLowerCase() : '';
+  if (statLower === 'under_review' || statLower === 'under review') {
     reviewSection.style.display = 'block';
   } else {
     reviewSection.style.display = 'none';
@@ -779,31 +791,55 @@ function closeClientProjectModal() {
 }
 window.closeClientProjectModal = closeClientProjectModal;
 
-document.getElementById('cpm-approve-btn')?.addEventListener('click', async () => {
+document.getElementById('cpm-pay-btn')?.addEventListener('click', async () => {
   if (!currentClientProjectId) return;
   
-  if (!confirm('Are you sure you want to approve this project? This will finalize the payment.')) return;
-  
-  const btn = document.getElementById('cpm-approve-btn');
-  btn.textContent = 'Approving...'; btn.disabled = true;
+  const btn = document.getElementById('cpm-pay-btn');
+  btn.textContent = 'Processing Payment...'; btn.disabled = true;
   
   try {
-    const res = await fetch(`${API}/projects/${currentClientProjectId}/approve`, {
+    // 1. Create Payment Order
+    const createRes = await fetch(`${API}/payments/create-order`, {
       method: 'POST',
-      headers: authH()
+      headers: authH(),
+      body: JSON.stringify({ project_id: currentClientProjectId })
     });
-    const data = await res.json();
-    if (data.success) {
-      toast('Project approved successfully! 🎉', 'success');
+    const orderData = await createRes.json();
+    
+    if (!orderData.success) {
+      toast(orderData.message || 'Failed to initialize payment.', 'error');
+      btn.textContent = 'Pay Now'; btn.disabled = false;
+      return;
+    }
+    
+    // Simulate Razorpay checkout (mock flow)
+    const mockPaymentId = `pay_mock_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const notes = document.getElementById('cpm-review-notes').value.trim();
+    // 2. Verify Payment
+    const verifyRes = await fetch(`${API}/payments/verify`, {
+      method: 'POST',
+      headers: authH(),
+      body: JSON.stringify({
+        razorpay_order_id: orderData.data.razorpay_order_id,
+        razorpay_payment_id: mockPaymentId,
+        razorpay_signature: 'mock_signature',
+        accept_message: notes
+      })
+    });
+    const verifyData = await verifyRes.json();
+    
+    if (verifyData.success) {
+      toast('Payment Successful! 🎉', 'success');
       closeClientProjectModal();
       loadDashboard();
     } else {
-      toast(data.message || 'Failed to approve project.', 'error');
+      toast(verifyData.message || 'Payment verification failed.', 'error');
+      btn.textContent = 'Pay Now'; btn.disabled = false;
     }
   } catch (e) {
-    toast('Network error.', 'error');
-  } finally {
-    btn.textContent = 'Approve Project'; btn.disabled = false;
+    toast('Network error during payment.', 'error');
+    btn.textContent = 'Pay Now'; btn.disabled = false;
   }
 });
 
